@@ -1,6 +1,7 @@
 -- Global Functions:
 
 L = love.graphics
+P = love.physics
 floor = math.floor
 ceil = math.ceil
 max = math.max

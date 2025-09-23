@@ -14,8 +14,9 @@ bg = {
     zoom = 3,
 }
 
-local Unit = require("classes.Unit")
-local units = {}
+-- local Unit = require("classes.Unit")
+local world
+local chickens = {}
 
 function love.load()
     bg.centerX = bg.width / 2
@@ -26,38 +27,64 @@ function love.load()
     love.window.setTitle("CRT")
     love.window.setMode(bg.screenWidth, bg.screenHeight, { resizable = true })
     bg.image = loadImage("/assets/background.png")
+    
+    world = P.newWorld(0, 0, true)
 
-    for i = 1, 1 do
-        table.insert(
-            units, 
-            Unit.new({ 
-                x = random(bg.width),  
-                y = random(bg.height),  
-                vx = random(0, 1) * 2 - 1, 
-                vy = random(0, 1) * 2 - 1 
-            })
-        )
+    local w, h = bg.width, bg.height
+
+    -- top wall
+    do
+        local body = P.newBody(world, 0, 0, "static")
+        local shape = P.newEdgeShape(0, 0, w, 0)
+        local fixture = P.newFixture(body, shape)
+        fixture:setRestitution(1)
+    end
+    -- bottom wall
+    do
+        local body = P.newBody(world, 0, h, "static")
+        local shape = P.newEdgeShape(0, 0, w, 0)
+        local fixture = P.newFixture(body, shape)
+        fixture:setRestitution(1)
+    end
+    -- left wall
+    do
+        local body = P.newBody(world, 0, 0, "static")
+        local shape = P.newEdgeShape(0, 0, 0, h)
+        local fixture = P.newFixture(body, shape)
+        fixture:setRestitution(1)
+    end
+    -- right wall
+    do
+        local body = P.newBody(world, w, 0, "static")
+        local shape = P.newEdgeShape(0, 0, 0, h)
+        local fixture = P.newFixture(body, shape)
+        fixture:setRestitution(1)
     end
 
+    addChicken(100, 100, 60, 30)
+    addChicken(200, 150, -50, -40)
+end
 
-    
+function addChicken(x, y, vx, vy)
+    local image = loadImage("assets/chicken/chicken.png")
+
+    local w, h = 13, 15   -- hitbox size
+
+    local body = P.newBody(world, x, y, "dynamic")
+    local shape = P.newRectangleShape(w, h) -- offset + size
+    local fixture = P.newFixture(body, shape, 1)
+
+    fixture:setRestitution(1)
+    fixture:setFriction(0)
+    body:setBullet(true)
+    body:setLinearVelocity(vx, vy)
+    body:setFixedRotation(true)
+
+    table.insert(chickens, { image = image, body = body, shape = shape })
 end
 
 function love.update(dt)
-    -- update movement with background bounds
-    for _, u in ipairs(units) do
-        u:update(dt, bg.width, bg.height)
-    end
-
-    -- check collisions between all pairs
-    for i = 1, #units do
-        for j = i+1, #units do
-            local a, b = units[i], units[j]
-            if a:collides(b) then
-                a:bounce(b)
-            end
-        end
-    end
+    world:update(dt)
 end
 
 function love.draw()
@@ -70,8 +97,10 @@ function love.draw()
 
     L.draw(bg.image)
 
-    for _, u in ipairs(units) do
-        u:draw()
+    for _, c in ipairs(chickens) do
+        local x, y = c.body:getPosition()
+        L.draw(c.image, x, y, 0, 1, 1, c.image:getWidth()/2, c.image:getHeight()/2)
+        L.polygon("line", c.body:getWorldPoints(c.shape:getPoints()))
     end
 
 
