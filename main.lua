@@ -39,14 +39,12 @@ function love.load()
         )
     end
 
-
-    
 end
 
 function love.update(dt)
     -- update movement with background bounds
     for _, u in ipairs(units) do
-        u:update(dt, bg.width, bg.height)
+        u:update(dt)
     end
 
     -- check collisions between all pairs
@@ -54,10 +52,11 @@ function love.update(dt)
         for j = i+1, #units do
             local a, b = units[i], units[j]
             if a:collides(b) then
-                a:bounce(b)
+                a:resolveCollision(b)
             end
         end
     end
+
 end
 
 function love.draw()
@@ -66,15 +65,13 @@ function love.draw()
     L.scale(bg.zoom, bg.zoom)
     L.translate(bg.centerX - bg.width / 2, bg.centerY - bg.height / 2)
 
-    -- L.printf("chicken", 0, 0, bg.width, "center")
-
-    L.draw(bg.image)
-
-    for _, u in ipairs(units) do
-        u:draw()
+    -- Game Window:
+    do
+        L.draw(bg.image)
+        for _, u in ipairs(units) do
+            u:draw()
+        end
     end
-
-
     L.pop()
 end
 

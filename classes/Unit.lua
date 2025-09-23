@@ -8,8 +8,8 @@ function Unit.new(params)
     local image = loadImage("assets/chicken/chicken.png")
     local instance = {
         image = image,
-        ox = 44,
-        oy = 41,
+
+        -- position of the hitbox (top-left)
         x = p.x or 0,
         y = p.y or 0,
         vx = p.vx or 0,
@@ -19,9 +19,11 @@ function Unit.new(params)
         w = image:getWidth(),
         h = image:getHeight(),
 
-        -- custom hitbox (relative to sprite)
-        hitboxX = p.hitboxX or 44,
-        hitboxY = p.hitboxY or 41,
+        -- image offset relative to hitbox
+        ox = p.ox or -44,
+        oy = p.oy or -41,
+
+        -- hitbox (simpler, always top-left aligned)
         hitboxW = p.hitboxW or 13,
         hitboxH = p.hitboxH or 15,
     }
@@ -29,7 +31,10 @@ function Unit.new(params)
     return instance
 end
 
-function Unit:update(dt, boundsW, boundsH)
+function Unit:update(dt)
+    -- store previous position
+    self.prevX, self.prevY = self.x, self.y
+
     -- move
     self.x = self.x + self.vx * 60 * dt
     self.y = self.y + self.vy * 60 * dt
@@ -39,30 +44,26 @@ function Unit:update(dt, boundsW, boundsH)
 
     -- bounce off left/right walls
     if hx < 0 then
-        self.x = -self.hitboxX -- snap so hitbox sits at edge
+        self.x = 0
         self.vx = -self.vx
-    elseif hx + hw > boundsW then
-        self.x = boundsW - hw - self.hitboxX
+    elseif hx + hw > bg.width then
+        self.x = bg.width - hw
         self.vx = -self.vx
     end
 
     -- bounce off top/bottom walls
     if hy < 0 then
-        self.y = -self.hitboxY
+        self.y = 0
         self.vy = -self.vy
-    elseif hy + hh > boundsH then
-        self.y = boundsH - hh - self.hitboxY
+    elseif hy + hh > bg.height then
+        self.y = bg.height - hh
         self.vy = -self.vy
     end
-
 end
 
 -- world-space hitbox rectangle
 function Unit:getHitbox()
-    return self.x + self.hitboxX,
-           self.y + self.hitboxY,
-           self.hitboxW,
-           self.hitboxH
+    return self.x, self.y, self.hitboxW, self.hitboxH
 end
 
 -- collision test using hitboxes
@@ -76,61 +77,54 @@ function Unit:collides(other)
            ay + ah > by
 end
 
--- Simple bounce response (swap velocities)
-function Unit:bounce(other)
-    -- reverse horizontal if overlap is more horizontal
-    local dx = (self.x + self.w/2) - (other.x + other.w/2)
-    local dy = (self.y + self.h/2) - (other.y + other.h/2)
-
-    if math.abs(dx) > math.abs(dy) then
-        self.vx = -self.vx
-        other.vx = -other.vx
-    else
-        self.vy = -self.vy
-        other.vy = -other.vy
-    end
-end
 
 -- Resolve collision by bouncing
 function Unit:resolveCollision(other)
     if not self:collides(other) then return end
 
-    -- centers of hitboxes
+    -- get hitboxes
     local ax, ay, aw, ah = self:getHitbox()
     local bx, by, bw, bh = other:getHitbox()
+
+    -- centers
     local acx, acy = ax + aw/2, ay + ah/2
     local bcx, bcy = bx + bw/2, by + bh/2
 
-    local dx = acx - bcx
-    local dy = acy - bcy
+    -- overlap along x and y
+    local overlapX = (aw/2 + bw/2) - math.abs(acx - bcx)
+    local overlapY = (ah/2 + bh/2) - math.abs(acy - bcy)
 
-    if math.abs(dx) > math.abs(dy) then
+    if overlapX < overlapY then
+        -- push along X
+        if acx < bcx then
+            self.x = self.x - overlapX/2
+            other.x = other.x + overlapX/2
+        else
+            self.x = self.x + overlapX/2
+            other.x = other.x - overlapX/2
+        end
         self.vx, other.vx = -self.vx, -other.vx
-        if dx > 0 then
-            self.x = self.x + 1
-            other.x = other.x - 1
-        else
-            self.x = self.x - 1
-            other.x = other.x + 1
-        end
     else
-        self.vy, other.vy = -self.vy, -other.vy
-        if dy > 0 then
-            self.y = self.y + 1
-            other.y = other.y - 1
+        -- push along Y
+        if acy < bcy then
+            self.y = self.y - overlapY/2
+            other.y = other.y + overlapY/2
         else
-            self.y = self.y - 1
-            other.y = other.y + 1
+            self.y = self.y + overlapY/2
+            other.y = other.y - overlapY/2
         end
+        self.vy, other.vy = -self.vy, -other.vy
     end
 end
 
+
 function Unit:draw()
-    love.graphics.draw(self.image, self.x, self.y)
+    -- apply offset when drawing image
+    L.draw(self.image, self.x + self.ox, self.y + self.oy)
 
     -- debug: draw hitbox
     -- local hx, hy, hw, hh = self:getHitbox()
-    -- love.graphics.rectangle("line", hx, hy, hw, hh)
+    -- L.rectangle("line", hx, hy, hw, hh)
 end
 
 return Unit
