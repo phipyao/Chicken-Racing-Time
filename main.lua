@@ -35,28 +35,28 @@ function love.load()
     -- top wall
     do
         local body = P.newBody(world, 0, 0, "static")
-        local shape = P.newEdgeShape(0, 0, w, 0)
+        local shape = P.newEdgeShape(0, 0, w, 1)
         local fixture = P.newFixture(body, shape)
         fixture:setRestitution(1)
     end
     -- bottom wall
     do
         local body = P.newBody(world, 0, h, "static")
-        local shape = P.newEdgeShape(0, 0, w, 0)
+        local shape = P.newEdgeShape(0, 0, w, 1)
         local fixture = P.newFixture(body, shape)
         fixture:setRestitution(1)
     end
     -- left wall
     do
         local body = P.newBody(world, 0, 0, "static")
-        local shape = P.newEdgeShape(0, 0, 0, h)
+        local shape = P.newEdgeShape(0, 0, 1, h)
         local fixture = P.newFixture(body, shape)
         fixture:setRestitution(1)
     end
     -- right wall
     do
         local body = P.newBody(world, w, 0, "static")
-        local shape = P.newEdgeShape(0, 0, 0, h)
+        local shape = P.newEdgeShape(0, 0, 1, h)
         local fixture = P.newFixture(body, shape)
         fixture:setRestitution(1)
     end
