@@ -11,24 +11,20 @@ function Unit.new(params)
 
         name = p.name or 0,
         
-        -- position of the hitbox (top-left)
-     
+        -- position variables
         x = p.x or random(bg.width),  
         y = p.y or random(bg.height),  
         vx = p.vx or random(0, 1) * 2 - 1, 
-        vy = p.vy or random(0, 1) * 2 - 1 ,
-        -- sprite dimensions
-        image = p.image or image,
-        w = image:getWidth(),
-        h = image:getHeight(),
+        vy = p.vy or random(0, 1) * 2 - 1,
 
-        -- image offset relative to hitbox
-        ox = p.ox or -44,
-        oy = p.oy or -41,
-
-        -- hitbox (simpler, always top-left aligned)
+         -- hitbox (simpler, always top-left aligned)
         hitboxW = p.hitboxW or 13,
         hitboxH = p.hitboxH or 15,
+
+        -- sprite dimensions
+        image = p.image or image,
+        ox = p.ox or -44,
+        oy = p.oy or -41,
     }
     setmetatable(instance, Unit)
     return instance
@@ -126,8 +122,8 @@ function Unit:draw()
     L.draw(self.image, self.x + self.ox, self.y + self.oy)
 
     -- debug: draw hitbox
-    -- local hx, hy, hw, hh = self:getHitbox()
-    -- L.rectangle("line", hx, hy, hw, hh)
+    local hx, hy, hw, hh = self:getHitbox()
+    L.rectangle("line", hx, hy, hw, hh)
 end
 
 return Unit
