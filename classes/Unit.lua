@@ -1,4 +1,5 @@
 require("helpers")
+UnitData = require("data.UnitData")
 
 Unit = {}
 Unit.__index = Unit
@@ -7,15 +8,17 @@ function Unit.new(params)
     local p = params or {}
     local image = loadImage("assets/chicken/chicken.png")
     local instance = {
-        image = image,
 
+        name = p.name or 0,
+        
         -- position of the hitbox (top-left)
-        x = p.x or 0,
-        y = p.y or 0,
-        vx = p.vx or 0,
-        vy = p.vy or 0,
-
+     
+        x = p.x or random(bg.width),  
+        y = p.y or random(bg.height),  
+        vx = p.vx or random(0, 1) * 2 - 1, 
+        vy = p.vy or random(0, 1) * 2 - 1 ,
         -- sprite dimensions
+        image = p.image or image,
         w = image:getWidth(),
         h = image:getHeight(),
 

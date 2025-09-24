@@ -8,7 +8,7 @@ min = math.min
 random = math.random
 
 function loadImage(path)
-    local img = love.graphics.newImage(path)
+    local img = L.newImage(path)
     img:setFilter("nearest", "nearest")
     return img
 end

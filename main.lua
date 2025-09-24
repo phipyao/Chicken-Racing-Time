@@ -27,18 +27,8 @@ function love.load()
     love.window.setMode(bg.screenWidth, bg.screenHeight, { resizable = true })
     bg.image = loadImage("/assets/background.png")
 
-    for i = 1, 1 do
-        table.insert(
-            units, 
-            Unit.new({ 
-                x = random(bg.width),  
-                y = random(bg.height),  
-                vx = random(0, 1) * 2 - 1, 
-                vy = random(0, 1) * 2 - 1 
-            })
-        )
-    end
-
+    table.insert(units, Unit.new(UnitData.chicken))
+    table.insert(units, Unit.new(UnitData.monkey))
 end
 
 function love.update(dt)
