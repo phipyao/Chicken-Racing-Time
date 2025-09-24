@@ -10,6 +10,10 @@ function Unit.new(params)
     local instance = {
 
         name = p.name or 0,
+        hostile = p.hostile or false,
+        maxhp = p.maxhp or 1,
+        hp = p.maxhp or 1,
+        atk = p.atk or 1,
         
         -- position variables
         x = p.x or random(bg.width),  
@@ -60,9 +64,17 @@ function Unit:update(dt)
     end
 end
 
+
 -- world-space hitbox rectangle
 function Unit:getHitbox()
     return self.x, self.y, self.hitboxW, self.hitboxH
+end
+
+function Unit:attack(other)
+    if self.hostile ~= other.hostile then
+        self.hp = self.hp - other.atk
+        other.hp = other.hp - self.atk
+    end
 end
 
 -- collision test using hitboxes
@@ -122,8 +134,8 @@ function Unit:draw()
     L.draw(self.image, self.x + self.ox, self.y + self.oy)
 
     -- debug: draw hitbox
-    local hx, hy, hw, hh = self:getHitbox()
-    L.rectangle("line", hx, hy, hw, hh)
+    -- local hx, hy, hw, hh = self:getHitbox()
+    -- L.rectangle("line", hx, hy, hw, hh)
 end
 
 return Unit

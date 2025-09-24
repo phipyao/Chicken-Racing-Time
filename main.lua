@@ -22,9 +22,17 @@ function love.update(dt)
             local a, b = units[i], units[j]
             if a:collides(b) then
                 a:resolveCollision(b)
+                a:attack(b)
             end
         end
     end
+
+    -- remove dead units
+    for i = #units, 1, -1 do
+    if units[i].hp <= 0 then
+        table.remove(units, i)
+    end
+end
 
 end
 
