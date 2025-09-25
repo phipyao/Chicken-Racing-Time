@@ -1,11 +1,11 @@
 -- Global Functions:
-
 L = love.graphics
 
 floor = math.floor
 ceil = math.ceil
 max = math.max
 min = math.min
+abs = math.abs
 random = math.random
 
 Font = L.newFont("assets/m6x11.ttf", 16)
@@ -16,6 +16,8 @@ bg = {
     image = nil,
     width = 320,
     height = 180,
+    centerX = 160,
+    centerY = 90,
     zoom = 3,
 }
 
@@ -27,12 +29,8 @@ end
 
 -- background and window loader
 function loadBG()
-    bg.centerX = bg.width / 2
-    bg.centerY = bg.height / 2
-    bg.screenWidth = bg.width * bg.zoom
-    bg.screenHeight = bg.height * bg.zoom
     love.window.setTitle("CRT")
-    love.window.setMode(bg.screenWidth, bg.screenHeight, { resizable = true })
+    love.window.setMode(bg.width * bg.zoom, bg.height * bg.zoom, { resizable = true })
     bg.image = loadImage("/assets/background.png")
 end
 
@@ -43,6 +41,13 @@ function camera(drawFn)
     L.scale(bg.zoom, bg.zoom)
     L.translate(bg.centerX - bg.width / 2, bg.centerY - bg.height / 2)
     L.draw(bg.image)
+    drawFn()
+    L.pop()
+end
+
+function cameraText(drawFn)
+    L.push()
+    L.translate((bg.centerX - bg.width / 2) * bg.zoom, (bg.centerY - bg.height / 2) * bg.zoom)
     drawFn()
     L.pop()
 end
