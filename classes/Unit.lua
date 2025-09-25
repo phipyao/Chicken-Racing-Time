@@ -7,6 +7,9 @@ Unit.__index = Unit
 function Unit.new(params)
     local p = params or {}
     local image = loadImage("assets/chicken/chicken.png")
+    
+    local vx, vy = randomDir()
+
     local instance = {
 
         name = p.name or 0,
@@ -18,8 +21,8 @@ function Unit.new(params)
         -- position variables
         x = p.x or random(bg.width),  
         y = p.y or random(bg.height),  
-        vx = p.vx or random(0, 1) * 2 - 1, 
-        vy = p.vy or random(0, 1) * 2 - 1,
+        vx = p.vx or vx,
+        vy = p.vy or vy,
 
          -- hitbox (simpler, always top-left aligned)
         hitboxW = p.hitboxW or 13,

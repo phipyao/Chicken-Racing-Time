@@ -6,6 +6,9 @@ ceil = math.ceil
 max = math.max
 min = math.min
 abs = math.abs
+sin = math.sin
+cos = math.cos
+pi = math.pi
 random = math.random
 
 Font = L.newFont("assets/m6x11.ttf", 16)
@@ -26,6 +29,13 @@ function loadImage(path)
     img:setFilter("nearest", "nearest")
     return img
 end
+
+function randomDir()
+    local theta = random() * 2 * pi
+    local x, y = cos(theta), sin(theta)
+    return x, y
+end
+
 
 -- background and window loader
 function loadBG()
