@@ -9,7 +9,7 @@ screens = {
     Chicks
 }
 
-screen = Chicks
+screen = Game
 
 function love.load()
     loadBG()
