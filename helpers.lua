@@ -15,6 +15,19 @@ Font = L.newFont("assets/m6x11.ttf", 16)
 Font:setFilter("nearest", "nearest")
 L.setFont(Font)
 
+-- safe screen switcher
+function switch(screen)
+    return setmetatable({}, {
+        __index = function(_, key)
+            return function(_, ...)
+                if screen and screen[key] then
+                    return screen[key](screen, ...)
+                end
+            end
+        end
+    })
+end
+
 bg = {
     image = nil,
     width = 320,
@@ -36,21 +49,12 @@ function randomDir()
     return x, y
 end
 
-
--- background and window loader
-function loadBG()
-    love.window.setTitle("CRT")
-    love.window.setMode(bg.width * bg.zoom, bg.height * bg.zoom, { resizable = true })
-    bg.image = loadImage("/assets/background.png")
-end
-
--- wrapper
+-- Camera Centering
 function camera(drawFn)
     -- L.setBackgroundColor(192 / 255, 148 / 255, 115 / 255)
     L.push()
     L.scale(bg.zoom, bg.zoom)
     L.translate(bg.centerX - bg.width / 2, bg.centerY - bg.height / 2)
-    L.draw(bg.image)
     drawFn()
     L.pop()
 end
@@ -68,9 +72,41 @@ function cameraResize(w, h)
     bg.centerY = floor((h / 2) / bg.zoom)
 end
 
--- convert screen coords to world coords
 function screenToWorld(x, y)
     local wx = (x / bg.zoom) - (bg.centerX - bg.width / 2)
     local wy = (y / bg.zoom) - (bg.centerY - bg.height / 2)
     return wx, wy
+end
+
+-- background and window loader
+function loadBG()
+    love.window.setTitle("CRT")
+    love.window.setMode(bg.width * bg.zoom, bg.height * bg.zoom, { resizable = true })
+    bg.image = loadImage("/assets/background.png")
+end
+
+-- color function wrapper
+function color(r, g, b, a)
+    r = (r or 0) / 255
+    g = (g or 0) / 255
+    b = (b or 0) / 255
+    a = a or 1
+
+    return setmetatable({}, {
+        __index = function(_, key)
+            return function(_, ...)
+                L.setColor(r, g, b, a)
+                L[key](...)
+                L.setColor(1, 1, 1, 1)
+            end
+        end
+    })
+end
+
+function drawBG()
+    camera(function()
+        L.draw(bg.image)
+        -- bg.color = color(192, 148, 115)
+        -- bg.color:rectangle("fill", 0, 0, bg.width, bg.height)
+    end)
 end

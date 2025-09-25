@@ -1,4 +1,3 @@
-require("helpers")
 UnitData = require("data.UnitData")
 
 Unit = {}
