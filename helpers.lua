@@ -81,7 +81,7 @@ end
 -- background and window loader
 function loadBG()
     love.window.setTitle("CRT")
-    love.window.setMode(bg.width * bg.zoom, bg.height * bg.zoom, { resizable = true })
+    love.window.setMode(bg.width * bg.zoom, bg.height * bg.zoom, { resizable = false })
     bg.image = loadImage("/assets/background.png")
 end
 
