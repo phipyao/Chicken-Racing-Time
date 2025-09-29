@@ -76,7 +76,9 @@ function Unit:attack(other)
     if self.hostile ~= other.hostile then
         self.hp = self.hp - other.atk
         other.hp = other.hp - self.atk
+        return true
     end
+    return false
 end
 
 -- collision test using hitboxes
@@ -136,8 +138,8 @@ function Unit:draw()
     L.draw(self.image, self.x + self.ox, self.y + self.oy)
 
     -- debug: draw hitbox
-    -- local hx, hy, hw, hh = self:getHitbox()
-    -- L.rectangle("line", hx, hy, hw, hh)
+    local hx, hy, hw, hh = self:getHitbox()
+    L.rectangle("line", hx, hy, hw, hh)
 end
 
 return Unit
