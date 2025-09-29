@@ -17,96 +17,97 @@ L.setFont(Font)
 
 -- safe screen switcher
 function switch(screen)
-    return setmetatable({}, {
-        __index = function(_, key)
-            return function(_, ...)
-                if screen and screen[key] then
-                    return screen[key](screen, ...)
-                end
-            end
-        end
-    })
+	return setmetatable({}, {
+		__index = function(_, key)
+			return function(_, ...)
+				if screen and screen[key] then
+					return screen[key](screen, ...)
+				end
+			end
+		end,
+	})
 end
 
 bg = {
-    image = nil,
-    width = 320,
-    height = 180,
-    centerX = 160,
-    centerY = 90,
-    zoom = 3,
+	image = nil,
+	width = 320,
+	height = 180,
+	centerX = 160,
+	centerY = 90,
+	zoom = 3,
 }
 
 function loadImage(path)
-    local img = L.newImage(path)
-    img:setFilter("nearest", "nearest")
-    return img
+	local img = L.newImage(path)
+	img:setFilter("nearest", "nearest")
+	return img
 end
 
 function randomDir()
-    local theta = random() * 2 * pi
-    local x, y = cos(theta), sin(theta)
-    return x, y
+	local theta = random() * 2 * pi
+	local x, y = cos(theta), sin(theta)
+	return x, y
 end
 
 -- Camera Centering
 function camera(drawFn)
-    -- L.setBackgroundColor(192 / 255, 148 / 255, 115 / 255)
-    L.push()
-    L.scale(bg.zoom, bg.zoom)
-    L.translate(bg.centerX - bg.width / 2, bg.centerY - bg.height / 2)
-    drawFn()
-    L.pop()
+	-- L.setBackgroundColor(192 / 255, 148 / 255, 115 / 255)
+	L.push()
+	L.scale(bg.zoom, bg.zoom)
+	L.translate(bg.centerX - bg.width / 2, bg.centerY - bg.height / 2)
+	drawFn()
+	L.pop()
 end
 
 function cameraText(drawFn)
-    L.push()
-    L.translate((bg.centerX - bg.width / 2) * bg.zoom, (bg.centerY - bg.height / 2) * bg.zoom)
-    drawFn()
-    L.pop()
+	L.push()
+	L.translate((bg.centerX - bg.width / 2) * bg.zoom, (bg.centerY - bg.height / 2) * bg.zoom)
+	drawFn()
+	L.pop()
 end
 
 function cameraResize(w, h)
-    bg.zoom = max(floor(min(w / bg.width, h / bg.height)), 1)
-    bg.centerX = floor((w / 2) / bg.zoom)
-    bg.centerY = floor((h / 2) / bg.zoom)
+	bg.zoom = max(floor(min(w / bg.width, h / bg.height)), 1)
+	bg.centerX = floor((w / 2) / bg.zoom)
+	bg.centerY = floor((h / 2) / bg.zoom)
 end
 
 function screenToWorld(x, y)
-    local wx = (x / bg.zoom) - (bg.centerX - bg.width / 2)
-    local wy = (y / bg.zoom) - (bg.centerY - bg.height / 2)
-    return wx, wy
+	local wx = (x / bg.zoom) - (bg.centerX - bg.width / 2)
+	local wy = (y / bg.zoom) - (bg.centerY - bg.height / 2)
+	return wx, wy
 end
 
 -- background and window loader
 function loadBG()
-    love.window.setTitle("CRT")
-    love.window.setMode(bg.width * bg.zoom, bg.height * bg.zoom, { resizable = false })
-    bg.image = loadImage("/assets/background.png")
+	love.window.setTitle("CRT")
+	love.window.setMode(bg.width * bg.zoom, bg.height * bg.zoom, { resizable = true })
+	bg.image = loadImage("/assets/background.png")
 end
 
 -- color function wrapper
 function color(r, g, b, a)
-    r = (r or 0) / 255
-    g = (g or 0) / 255
-    b = (b or 0) / 255
-    a = a or 1
+	r = (r or 0) / 255
+	g = (g or 0) / 255
+	b = (b or 0) / 255
+	a = a or 1
 
-    return setmetatable({}, {
-        __index = function(_, key)
-            return function(_, ...)
-                L.setColor(r, g, b, a)
-                L[key](...)
-                L.setColor(1, 1, 1, 1)
-            end
-        end
-    })
+	return setmetatable({}, {
+		__index = function(_, key)
+			return function(_, ...)
+				L.setColor(r, g, b, a)
+				L[key](...)
+				L.setColor(1, 1, 1, 1)
+			end
+		end,
+	})
 end
 
 function drawBG()
-    camera(function()
-        L.draw(bg.image)
-        -- bg.color = color(192, 148, 115)
-        -- bg.color:rectangle("fill", 0, 0, bg.width, bg.height)
-    end)
+	camera(function()
+		L.draw(bg.image)
+		-- bg.color = color(192, 148, 115)
+		-- bg.color:rectangle("fill", 0, 0, bg.width, bg.height)
+	end)
 end
+
