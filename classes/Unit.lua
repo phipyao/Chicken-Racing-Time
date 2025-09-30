@@ -6,6 +6,7 @@ Unit.__index = Unit
 function Unit.new(params)
 	local p = params or {}
 	local image = loadImage("assets/chicken/chicken.png")
+	local blank = loadImage("assets/chicken/outline.png")
 
 	local vx, vy = randomDir()
 
@@ -29,8 +30,16 @@ function Unit.new(params)
 
 		-- sprite dimensions
 		image = p.image or image,
+        blank = p.blank or blank,
 		ox = p.ox or -44,
 		oy = p.oy or -41,
+
+        -- for taking damage
+        flashTimer = 0,
+        flashDuration = 0.1,
+        isDead = false,
+        deathTimer = 0,
+        deathDuration = 0.1,
 	}
 	setmetatable(instance, Unit)
 	return instance
@@ -40,6 +49,9 @@ function Unit:update(dt)
 	-- store previous position
 	self.prevX, self.prevY = self.x, self.y
 
+    if self.flashTimer > 0 then
+        self.flashTimer = self.flashTimer - dt
+    end
 	-- move
 	self.x = self.x + self.vx * 60 * dt
 	self.y = self.y + self.vy * 60 * dt
@@ -75,6 +87,15 @@ function Unit:attack(other)
 	if self.hostile ~= other.hostile then
 		self.hp = self.hp - other.atk
 		other.hp = other.hp - self.atk
+
+        -- trigger flash if this unit took damage
+        if other.atk > 0 then
+            self.flashTimer = self.flashDuration
+        end
+        if self.atk > 0 then
+            other.flashTimer = other.flashDuration
+        end
+
 		return true
 	end
 	return false
@@ -131,7 +152,12 @@ end
 
 function Unit:draw()
 	-- apply offset when drawing image
-	L.draw(self.image, self.x + self.ox, self.y + self.oy)
+    local sprite = self.image
+    if self.flashTimer > 0 then
+        sprite = self.blank
+    end
+
+	L.draw(sprite, self.x + self.ox, self.y + self.oy)
 
 	-- debug: draw hitbox
 	-- local hx, hy, hw, hh = self:getHitbox()
