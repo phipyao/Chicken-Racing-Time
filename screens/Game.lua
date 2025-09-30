@@ -6,14 +6,12 @@ local textTimers = {}
 local gameSpeed = 1
 
 local shake = require("classes.ScreenShake").new()
-
-local hitSound
+local hitSound = require("classes.SFX").new({path = "assets/sounds/clack.wav"})
 
 function Game:load()
     units = {}
     textTimers = {}
     gameSpeed = 1
-    hitSound = love.audio.newSource("assets/sounds/clack.wav", "static")
     table.insert(units, Unit.new(UnitData.monkey))
     table.insert(units, Unit.new(UnitData.chicken))
 end
@@ -37,10 +35,7 @@ function Game:update(dt)
                         if a:attack(b) then
                             -- activate effects
                             shake:trigger()
-                            hitSound:setPitch(0.9 + math.random() * 0.2)
-                            hitSound:setVolume(0.8)
-                            hitSound:stop()
-                            hitSound:play()
+                            hitSound:trigger()
                         end
                     end
                 end

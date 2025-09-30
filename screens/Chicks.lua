@@ -5,6 +5,8 @@ local units = {}
 local textTimers = {}
 local gameSpeed = 1
 
+local hitSound = require("classes.SFX").new({path = "assets/sounds/clack.wav"})
+
 function Chicks:load()
     units = {}
     textTimers = {}
@@ -26,7 +28,7 @@ function Chicks:update(dt)
                 local a, b = units[i], units[j]
                 if a:collides(b) then
                     a:resolveCollision(b)
-                    a:attack(b)
+                    hitSound:trigger()
                 end
             end
         end
