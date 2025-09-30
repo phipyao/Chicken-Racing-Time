@@ -80,6 +80,10 @@ end
 
 -- world-space hitbox rectangle
 function Unit:getHitbox()
+    -- remove hitbox if unit is dead
+    if self.isDead then
+        return self.x, self.y, 0, 0
+    end
 	return self.x, self.y, self.hitboxW, self.hitboxH
 end
 

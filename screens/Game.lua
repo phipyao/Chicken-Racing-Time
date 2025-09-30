@@ -5,11 +5,7 @@ local units = {}
 local textTimers = {}
 local gameSpeed = 1
 
-local hitStunTimer = 0
-local hitStunDelay = 0.1
-
-local shakeMagnitude = 4
-local shakeX, shakeY = 0, 0 
+local shake = require("classes.ScreenShake").new()
 
 local hitSound
 
@@ -26,12 +22,7 @@ end
 function Game:update(dt)
     for i = 1, gameSpeed do
         -- check for hitstun effect
-        if hitStunTimer > 0 then
-            hitStunTimer = hitStunTimer - dt
-            shakeX = random(-shakeMagnitude, shakeMagnitude)
-            shakeY = random(-shakeMagnitude, shakeMagnitude)
-        else
-            shakeX, shakeY = 0, 0
+        if not shake:update(dt) then
             -- update units
             for _, u in ipairs(units) do
                 u:update(dt)
@@ -44,9 +35,8 @@ function Game:update(dt)
                     if a:collides(b) then
                         a:resolveCollision(b)
                         if a:attack(b) then
-                            hitStunTimer = hitStunDelay
-
-                            -- play sound
+                            -- activate effects
+                            shake:trigger()
                             hitSound:setPitch(0.9 + math.random() * 0.2)
                             hitSound:setVolume(0.8)
                             hitSound:stop()
@@ -80,7 +70,7 @@ function Game:update(dt)
 end
 
 function Game:draw()
-    L.translate(shakeX, shakeY)
+    shake:draw()
     camera(function()
         for _, u in ipairs(units) do
             u:draw()
@@ -92,7 +82,7 @@ function Game:draw()
         for _, u in ipairs(units) do
             if u.name == "Chicken" then
                 L.print(u.hp, (u.x + 5) * bg.zoom, (u.y - 9) * bg.zoom)
-            else
+            elseif u.name == "Monkey" then
                 L.print("Monkey", (u.x) * bg.zoom, (u.y - 9) * bg.zoom)
             end
         end
