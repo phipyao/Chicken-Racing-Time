@@ -164,8 +164,8 @@ function Unit:draw()
 	L.draw(sprite, self.x + self.ox, self.y + self.oy)
 
 	-- debug: draw hitbox
-	local hx, hy, hw, hh = self:getHitbox()
-	L.rectangle("line", hx, hy, hw, hh)
+	-- local hx, hy, hw, hh = self:getHitbox()
+	-- L.rectangle("line", hx, hy, hw, hh)
 end
 
 return Unit

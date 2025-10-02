@@ -20,7 +20,7 @@ function love.load()
 end
 
 function love.update(dt)
-    -- cameraResize(L.getDimensions())
+    cameraResize(L.getDimensions())
     switch(screen):update(dt)
 end
 
