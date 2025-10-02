@@ -31,7 +31,7 @@ BuffData.lifesteal = {
     timing = "postcombat",
     description = "Heals HP after combat equal to 1/2 ATK, up to max HP.",
     apply = function(unit, other)
-        unit.hp = math.min(unit.maxhp, unit.hp + unit.atk)
+        unit.hp = math.min(unit.maxhp, unit.hp + ceil(unit.atk/2))
     end,
 }
 
