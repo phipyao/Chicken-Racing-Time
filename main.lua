@@ -46,9 +46,9 @@ function love.keypressed(key)
     if key == "g" then
         screen = Game
         switch(screen):load()
-    elseif key == "c" then
-        screen = Chicks
-        switch(screen):load()
+    -- elseif key == "c" then
+    --     screen = Chicks
+    --     switch(screen):load()
     end
 end
 

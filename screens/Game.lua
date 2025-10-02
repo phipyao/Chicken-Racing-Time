@@ -3,6 +3,7 @@ local Game = {}
 local Unit = require("classes.Unit")
 local units = {}
 local textTimers = {}
+local gameTimer = 0
 local gameSpeed = 1
 
 local shake = require("classes.ScreenShake").new()
@@ -13,6 +14,7 @@ local ctfFlag = nil
 function Game:load()
     units = {}
     textTimers = {}
+    gameTimer = 0
     gameSpeed = 1
     if gamemode == "CTF" then
         ctfFlag = Unit.new(UnitData.ctfFlag)
@@ -79,6 +81,7 @@ end
 
 function Game:update(dt)
     for i = 1, gameSpeed do
+        gameTimer = gameTimer + dt
         -- check for hitstun effect
         if not shake:update(dt) then
             -- collisions
@@ -139,29 +142,34 @@ function Game:draw()
         end
     end)
     cameraText(function()
-        L.print("Game Speed: " .. gameSpeed, 5, 5)
-        -- display unit hp values
+        L.print("Time: " .. string.format("%.2f", gameTimer), 5, 5)
+        L.print("Game Speed: " .. gameSpeed, 5, 21)
+        -- display unit stats
         for _, u in ipairs(units) do
-            L.print(u.hp, (u.x + 5) * bg.zoom, (u.y - 9) * bg.zoom)
+            L.print(u.hp, (u.x + u.hitboxW/2) * bg.zoom - 4, (u.y - 9) * bg.zoom)
             -- L.print(u.hp .. " " ..  u.wallBounceCount .. " " .. u.unitBounceCount, (u.x + 5) * bg.zoom, (u.y - 9) * bg.zoom)
+
+            -- debug: print buffs
+            -- local buffText = ""
+            -- for buff, active in pairs(u.buffs) do
+            --     if active then
+            --         buffText = buffText .. buff .. " "
+            --     end
+            -- end
+            -- L.print(u.hp .. " " .. u.atk .. " [ " .. buffText .. "]", u.x * bg.zoom, (u.y - 9) * bg.zoom)
         end
     end)
 end
 
 function Game:keypressed(key)
     if key == "r" then
-        gamemode = ""
-        units = {}
-        table.insert(units, Unit.new(UnitData.monkey))
-        table.insert(units, Unit.new(UnitData.chicken))
-        gameSpeed = 1
-    elseif key == "f" then
         units = {}
         gamemode = "CTF"
         ctfFlag = Unit.new(UnitData.ctfFlag)
         table.insert(units, ctfFlag)
         table.insert(units, Unit.new(UnitData.monkey))
         table.insert(units, Unit.new(UnitData.chicken))
+        gameTimer = 0
         gameSpeed = 1
     elseif key:match("%d") then
         gameSpeed = tonumber(key)

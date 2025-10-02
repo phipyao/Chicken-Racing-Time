@@ -17,6 +17,8 @@ function Unit.new(params)
 		hp = p.maxhp or 1,
 		atk = p.atk or 1,
 
+		buffs = p.buffs or {},
+
 		-- counters
 		randomizeBounce = true,
 		bounceCount = 0,
@@ -66,10 +68,22 @@ function Unit:update(dt)
 	self.y = self.y + self.vy * 60 * dt
 end
 
+function Unit:addBuff(buff)
+	self.buffs[buff] = true
+end
+
+function Unit:removeBuffs(buff)
+	self.buffs = {}
+end
+
 function Unit:attack(other)
 	if self.party ~= other.party then
-		self.hp = self.hp - other.atk
-		other.hp = other.hp - self.atk
+        -- apply damage
+		local selfDamage = self.hp - other.atk
+		local otherDamage = other.hp - self.atk
+
+		self.hp = selfDamage
+		other.hp = otherDamage
 
 		self.lastHit = other
 		other.lastHit = self
@@ -84,6 +98,16 @@ function Unit:attack(other)
             other.flashTimer = other.flashDuration
 			result = true
         end
+
+		-- Buff check
+        if self.buffs["squared"] then
+			print("squaring atk")
+            self.atk = self.atk * 2
+        end
+        if other.buffs and other.buffs["squared"] then
+            other.atk = other.atk * 2
+        end
+
 		return result
 	end
 	return false
