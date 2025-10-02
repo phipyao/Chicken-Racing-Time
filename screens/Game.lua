@@ -6,21 +6,13 @@ local textTimers = {}
 local gameSpeed = 1
 
 local shake = require("classes.ScreenShake").new()
-local hitSound = require("classes.SFX").new({path = "assets/sounds/clack.wav"})
 
 function Game:load()
     units = {}
     textTimers = {}
     gameSpeed = 1
-    -- table.insert(units, Unit.new(UnitData.monkey))
-    u1 = Unit.new(UnitData.chicken)
-    u2 = Unit.new(UnitData.chicken)
-    u3 = Unit.new(UnitData.monkey)
-    u4 = Unit.new(UnitData.monkey)
-    table.insert(units, u1)
-    table.insert(units, u2)
-    table.insert(units, u3)
-    table.insert(units, u4)
+    table.insert(units, Unit.new(UnitData.monkey))
+    table.insert(units, Unit.new(UnitData.chicken))
 end
 
 
@@ -89,6 +81,7 @@ function Game:draw()
         -- display unit hp values
         for _, u in ipairs(units) do
             L.print(u.hp, (u.x + 5) * bg.zoom, (u.y - 9) * bg.zoom)
+            -- L.print(u.hp .. " " ..  u.wallBounceCount .. " " .. u.unitBounceCount, (u.x + 5) * bg.zoom, (u.y - 9) * bg.zoom)
         end
     end)
 end

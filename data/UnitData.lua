@@ -6,6 +6,7 @@ UnitData.chicken = {
     atk = 1,
     party = 0,
     image = loadImage("assets/chicken/chicken.png"),
+    blank = loadImage("assets/chicken/outline.png"),
 }
 
 UnitData.monkey = {
@@ -14,6 +15,7 @@ UnitData.monkey = {
     atk = 1,
     party = 1,
     image = loadImage("assets/monkey/monkey.png"),
+    blank = loadImage("assets/monkey/outline.png"),
 }
 
 return UnitData

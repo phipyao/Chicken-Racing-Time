@@ -3,20 +3,26 @@ UnitData = require("data.UnitData")
 Unit = {}
 Unit.__index = Unit
 
+local randomize = true
+
 function Unit.new(params)
 	local p = params or {}
-	local image = loadImage("assets/chicken/chicken.png")
-	local blank = loadImage("assets/chicken/outline.png")
+	local image = nil
+	local blank = nil
 
 	local vx, vy = randomDir()
 
 	local instance = {
-
 		name = p.name or 0,
 		party = p.party or 0,
 		maxhp = p.maxhp or 1,
 		hp = p.maxhp or 1,
 		atk = p.atk or 1,
+
+		-- counters
+		bounceCount = 0,
+		unitBounceCount = 0,
+		wallBounceCount = 0,
 
 		-- position variables
 		x = p.x or random(bg.width),
@@ -58,6 +64,25 @@ function Unit:update(dt)
 	self.y = self.y + self.vy * 60 * dt
 end
 
+function Unit:attack(other)
+	if self.party ~= other.party then
+		self.hp = self.hp - other.atk
+		other.hp = other.hp - self.atk
+		local result = false
+        -- trigger flash
+        if other.atk > 0 then
+            self.flashTimer = self.flashDuration
+			result = true
+        end
+        if self.atk > 0 then
+            other.flashTimer = other.flashDuration
+			result = true
+        end
+		return result
+	end
+	return false
+end
+
 -- world-space hitbox rectangle
 function Unit:getHitbox()
     -- remove hitbox if unit is dead
@@ -65,6 +90,27 @@ function Unit:getHitbox()
         return self.x, self.y, 0, 0
     end
 	return self.x, self.y, self.hitboxW, self.hitboxH
+end
+
+function Unit:bounce(dx, dy, collisionType)
+    if randomize then
+        -- random bounce
+        self.vx, self.vy = randomDirHalf(dx, dy)
+		-- randomize = false
+    else
+        -- normal bounce (flip component along the normal)
+        if dx ~= 0 then self.vx = -self.vx end
+        if dy ~= 0 then self.vy = -self.vy end
+    end
+
+    -- increment counters
+    self.bounceCount = self.bounceCount + 1
+    if collisionType == "unit" then
+        self.unitBounceCount = self.unitBounceCount + 1
+    elseif collisionType == "wall" then
+		self.wallBounceCount = self.wallBounceCount + 1
+	end
+
 end
 
 -- border collision test using hitbox
@@ -75,44 +121,25 @@ function Unit:collidesBorder()
 end
 
 function Unit:resolveCollisionBorder()
-	-- get hitbox in world space
-	local hx, hy, hw, hh = self:getHitbox()
+    local hx, hy, hw, hh = self:getHitbox()
 
-	-- bounce off left/right walls
-	if hx < 0 then
-		self.x = 0
-		self.vx = -self.vx
-	elseif hx + hw > bg.width then
-		self.x = bg.width - hw
-		self.vx = -self.vx
-	end
+    -- left/right wall
+    if hx < 0 then
+        self.x = 0
+		self:bounce(1, 0, "wall")
+    elseif hx + hw > bg.width then
+        self.x = bg.width - hw
+        self:bounce(-1, 0, "wall")
+    end
 
-	-- bounce off top/bottom walls
-	if hy < 0 then
-		self.y = 0
-		self.vy = -self.vy
-	elseif hy + hh > bg.height then
-		self.y = bg.height - hh
-		self.vy = -self.vy
-	end
-end
-
-function Unit:attack(other)
-	if self.party ~= other.party then
-		self.hp = self.hp - other.atk
-		other.hp = other.hp - self.atk
-
-        -- trigger flash if this unit took damage
-        if other.atk > 0 then
-            self.flashTimer = self.flashDuration
-			return true
-        end
-        if self.atk > 0 then
-            other.flashTimer = other.flashDuration
-			return true
-        end
-	end
-	return false
+    -- top/bottom wall
+    if hy < 0 then
+        self.y = 0
+        self:bounce(0, 1, "wall")
+    elseif hy + hh > bg.height then
+        self.y = bg.height - hh
+        self:bounce(0, -1, "wall")
+    end
 end
 
 -- collision test using hitboxes
@@ -125,10 +152,6 @@ end
 
 -- Resolve collision by bouncing
 function Unit:resolveCollision(other)
-	if not self:collides(other) then
-		return
-	end
-
 	-- get hitboxes
 	local ax, ay, aw, ah = self:getHitbox()
 	local bx, by, bw, bh = other:getHitbox()
@@ -142,25 +165,29 @@ function Unit:resolveCollision(other)
 	local overlapY = (ah / 2 + bh / 2) - math.abs(acy - bcy)
 
 	if overlapX < overlapY then
-		-- push along X
 		if acx < bcx then
 			self.x = self.x - overlapX / 2
 			other.x = other.x + overlapX / 2
+			self:bounce(-1, 0, "unit")
+			other:bounce(1, 0, "unit")
 		else
 			self.x = self.x + overlapX / 2
 			other.x = other.x - overlapX / 2
+			self:bounce(1, 0, "unit")
+			other:bounce(-1, 0, "unit")
 		end
-		self.vx, other.vx = -self.vx, -other.vx
 	else
-		-- push along Y
 		if acy < bcy then
 			self.y = self.y - overlapY / 2
 			other.y = other.y + overlapY / 2
+			self:bounce(0, -1, "unit")
+			other:bounce(0, 1, "unit")
 		else
 			self.y = self.y + overlapY / 2
 			other.y = other.y - overlapY / 2
+			self:bounce(0, 1, "unit")
+			other:bounce(0, -1, "unit")
 		end
-		self.vy, other.vy = -self.vy, -other.vy
 	end
 end
 
@@ -171,11 +198,13 @@ function Unit:draw()
         sprite = self.blank
     end
 
-	L.draw(sprite, self.x + self.ox, self.y + self.oy)
-
-	-- debug: draw hitbox
-	-- local hx, hy, hw, hh = self:getHitbox()
-	-- L.rectangle("line", hx, hy, hw, hh)
+	if sprite then
+        L.draw(sprite, self.x + self.ox, self.y + self.oy)
+	else
+		-- debug: draw hitbox
+		local hx, hy, hw, hh = self:getHitbox()
+		L.rectangle("line", hx, hy, hw, hh)
+    end
 end
 
 return Unit

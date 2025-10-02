@@ -15,6 +15,8 @@ Font = L.newFont("assets/m6x11.ttf", 16)
 Font:setFilter("nearest", "nearest")
 L.setFont(Font)
 
+hitSound = require("classes.SFX").new({path = "assets/sounds/clack.wav"})
+
 -- safe screen switcher
 function switch(screen)
 	return setmetatable({}, {
@@ -47,6 +49,14 @@ function randomDir()
 	local theta = random() * 2 * pi
 	local x, y = cos(theta), sin(theta)
 	return x, y
+end
+
+function randomDirHalf(normalX, normalY)
+    -- random angle in [-90°, +90°] relative to the inward normal
+    local theta = (math.random() - 0.5) * math.pi
+    local baseAngle = math.atan2(normalY, normalX)
+    local finalAngle = baseAngle + theta
+    return math.cos(finalAngle), math.sin(finalAngle)
 end
 
 -- Camera Centering
