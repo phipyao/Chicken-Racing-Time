@@ -43,13 +43,13 @@ function love.keypressed(key)
     switch(screen):keypressed(key)
 
     -- screen switcher
-    if key == "g" then
-        screen = Game
-        switch(screen):load()
+    -- if key == "g" then
+    --     screen = Game
+    --     switch(screen):load()
     -- elseif key == "c" then
     --     screen = Chicks
     --     switch(screen):load()
-    end
+    -- end
 end
 
 function love.resize(w, h)

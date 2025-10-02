@@ -171,6 +171,13 @@ function Game:keypressed(key)
         table.insert(units, Unit.new(UnitData.chicken))
         gameTimer = 0
         gameSpeed = 1
+    elseif key == "t" then
+        units = {}
+        gamemode = ""
+        table.insert(units, Unit.new(UnitData.monkey))
+        table.insert(units, Unit.new(UnitData.chicken))
+        gameTimer = 0
+        gameSpeed = 1
     elseif key:match("%d") then
         gameSpeed = tonumber(key)
     else 
