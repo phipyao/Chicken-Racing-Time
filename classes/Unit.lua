@@ -1,4 +1,5 @@
 UnitData = require("data.UnitData")
+BuffData = require("data.BuffData")
 
 Unit = {}
 Unit.__index = Unit
@@ -72,45 +73,52 @@ function Unit:addBuff(buff)
 	self.buffs[buff] = true
 end
 
-function Unit:removeBuffs(buff)
-	self.buffs = {}
+function Unit:removeBuff(buff)
+	self.buffs[buff] = nil
+end
+
+local function applyBuffsByTiming(unit, other, timing)
+    for buff, active in pairs(unit.buffs) do
+        if active and BuffData[buff] and BuffData[buff].timing == timing then
+            BuffData[buff].apply(unit, other)
+        end
+    end
 end
 
 function Unit:attack(other)
-	if self.party ~= other.party then
-        -- apply damage
-		local selfDamage = self.hp - other.atk
-		local otherDamage = other.hp - self.atk
+    if self.party ~= other.party then
+        -- === Precombat Buffs ===
+        applyBuffsByTiming(self, other, "precombat")
+    	applyBuffsByTiming(other, self, "precombat")
 
-		self.hp = selfDamage
-		other.hp = otherDamage
+        -- === Damage Calculation ===
+        local selfDamage = self.hp - other.atk
+        local otherDamage = other.hp - self.atk
 
-		self.lastHit = other
-		other.lastHit = self
+        self.hp = math.max(0, selfDamage)
+        other.hp = math.max(0, otherDamage)
+
+        self.lastHit = other
+        other.lastHit = self
 
         -- trigger flash
-		local result = false
+        local result = false
         if other.atk > 0 then
             self.flashTimer = self.flashDuration
-			result = true
+            result = true
         end
         if self.atk > 0 then
             other.flashTimer = other.flashDuration
-			result = true
+            result = true
         end
 
-		-- Buff check
-        if self.buffs["squared"] then
-			print("squaring atk")
-            self.atk = self.atk * 2
-        end
-        if other.buffs and other.buffs["squared"] then
-            other.atk = other.atk * 2
-        end
+        -- === Postcombat Buffs ===
+        applyBuffsByTiming(self, other, "postcombat")
+    	applyBuffsByTiming(other, self, "postcombat")
 
-		return result
-	end
-	return false
+        return result
+    end
+    return false
 end
 
 -- world-space hitbox rectangle

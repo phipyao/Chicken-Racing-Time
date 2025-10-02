@@ -19,7 +19,7 @@ UnitData.chicken = {
     image = loadImage("assets/chicken/chicken.png"),
     blank = loadImage("assets/chicken/outline.png"),
 
-    -- buffs = { squared = true },
+    -- buffs = { squared = true, shield = true},
 }
 
 UnitData.monkey = {
@@ -34,7 +34,7 @@ UnitData.monkey = {
     image = loadImage("assets/monkey/monkey.png"),
     blank = loadImage("assets/monkey/outline.png"),
 
-    -- buffs = { squared = true },
+    buffs = { regen = true },
 }
 
 return UnitData
