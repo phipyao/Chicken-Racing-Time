@@ -7,18 +7,75 @@ local gameSpeed = 1
 
 local shake = require("classes.ScreenShake").new()
 
-local wincon = nil
+local gamemode = "CTF"
+local ctfFlag = nil
 
 function Game:load()
     units = {}
     textTimers = {}
     gameSpeed = 1
-    wincon = Unit.new()
-    table.insert(units, wincon)
+    if gamemode == "CTF" then
+        ctfFlag = Unit.new(UnitData.ctfFlag)
+        table.insert(units, ctfFlag)
+    end
     table.insert(units, Unit.new(UnitData.monkey))
     table.insert(units, Unit.new(UnitData.chicken))
 end
 
+function Game:checkWinconditions()
+    local winnerParty = nil
+    local gameOver = false
+
+    -- CTF win
+    if gamemode == "CTF" then
+        local found = false
+        for _, u in ipairs(units) do
+            if u.name == "Flag" then
+                found = true
+                break
+            end
+        end
+
+        if not found then
+            winnerParty = ctfFlag.lastHit and ctfFlag.lastHit.party or nil
+            gameOver = true
+        end
+    end
+
+    -- Elimination win
+    if not gameOver then
+        local aliveParties = {}
+        for _, u in ipairs(units) do
+            if u.party ~= 0 then
+                aliveParties[u.party] = true
+            end
+        end
+
+        local count = 0
+        for party, _ in pairs(aliveParties) do
+            count = count + 1
+            winnerParty = party
+        end
+
+        if count == 0 then
+            print("Draw!")
+            gameSpeed = 0
+            return
+        elseif count == 1 then
+            gameOver = true
+        end
+    end
+
+    -- Finalize game over
+    if gameOver then
+        if winnerParty then
+            print("Party " .. tostring(winnerParty) .. " wins!")
+        else
+            print("Draw!")
+        end
+        gameSpeed = 0
+    end
+end
 
 function Game:update(dt)
     for i = 1, gameSpeed do
@@ -70,19 +127,7 @@ function Game:update(dt)
             end
         end
 
-        -- check wincon
-        local found = false
-        for _, u in ipairs(units) do
-            if u == wincon then
-                found = true
-                break
-            end
-        end
-
-        if not found then
-            print("Wincon!")
-            gameSpeed = 0
-        end
+        self:checkWinconditions()
     end
 end
 
@@ -105,9 +150,16 @@ end
 
 function Game:keypressed(key)
     if key == "r" then
+        gamemode = ""
         units = {}
-        wincon = Unit.new()
-        table.insert(units, wincon)
+        table.insert(units, Unit.new(UnitData.monkey))
+        table.insert(units, Unit.new(UnitData.chicken))
+        gameSpeed = 1
+    elseif key == "f" then
+        units = {}
+        gamemode = "CTF"
+        ctfFlag = Unit.new(UnitData.ctfFlag)
+        table.insert(units, ctfFlag)
         table.insert(units, Unit.new(UnitData.monkey))
         table.insert(units, Unit.new(UnitData.chicken))
         gameSpeed = 1

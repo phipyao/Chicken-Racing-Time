@@ -3,8 +3,6 @@ UnitData = require("data.UnitData")
 Unit = {}
 Unit.__index = Unit
 
-local randomize = true
-
 function Unit.new(params)
 	local p = params or {}
 	local image = nil
@@ -20,9 +18,13 @@ function Unit.new(params)
 		atk = p.atk or 1,
 
 		-- counters
+		randomizeBounce = true,
 		bounceCount = 0,
 		unitBounceCount = 0,
 		wallBounceCount = 0,
+
+		lastHit = nil,
+		killCount = 0,
 
 		-- position variables
 		x = p.x or random(bg.width),
@@ -68,8 +70,12 @@ function Unit:attack(other)
 	if self.party ~= other.party then
 		self.hp = self.hp - other.atk
 		other.hp = other.hp - self.atk
-		local result = false
+
+		self.lastHit = other
+		other.lastHit = self
+
         -- trigger flash
+		local result = false
         if other.atk > 0 then
             self.flashTimer = self.flashDuration
 			result = true
@@ -93,10 +99,14 @@ function Unit:getHitbox()
 end
 
 function Unit:bounce(dx, dy, collisionType)
-    if randomize then
+	if self.bounceCount % 5 == 0 then
+		self.randomizeBounce = true
+	end
+	
+    if self.randomizeBounce then
         -- random bounce
         self.vx, self.vy = randomDirHalf(dx, dy)
-		-- randomize = false
+		self.randomizeBounce = false
     else
         -- normal bounce (flip component along the normal)
         if dx ~= 0 then self.vx = -self.vx end

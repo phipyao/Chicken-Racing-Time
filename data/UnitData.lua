@@ -1,8 +1,15 @@
 local UnitData = {}
 
+UnitData.ctfFlag = {
+    name = "Flag",
+    maxhp = 1,
+    atk = 0,
+    party = 0,
+}
+
 UnitData.chicken = {
     name = "Chicken",
-    maxhp = 2,
+    maxhp = 1,
     atk = 1,
     party = 1,
     hitboxW = 13,
@@ -15,7 +22,7 @@ UnitData.chicken = {
 
 UnitData.monkey = {
     name = "Monkey",
-    maxhp = 5,
+    maxhp = 1,
     atk = 1,
     party = 2,
     hitboxW = 13,
