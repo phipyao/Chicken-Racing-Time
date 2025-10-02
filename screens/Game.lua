@@ -12,8 +12,15 @@ function Game:load()
     units = {}
     textTimers = {}
     gameSpeed = 1
-    table.insert(units, Unit.new(UnitData.monkey))
-    table.insert(units, Unit.new(UnitData.chicken))
+    -- table.insert(units, Unit.new(UnitData.monkey))
+    u1 = Unit.new(UnitData.chicken)
+    u2 = Unit.new(UnitData.chicken)
+    u3 = Unit.new(UnitData.monkey)
+    u4 = Unit.new(UnitData.monkey)
+    table.insert(units, u1)
+    table.insert(units, u2)
+    table.insert(units, u3)
+    table.insert(units, u4)
 end
 
 
@@ -21,15 +28,16 @@ function Game:update(dt)
     for i = 1, gameSpeed do
         -- check for hitstun effect
         if not shake:update(dt) then
-            -- update units
-            for _, u in ipairs(units) do
-                u:update(dt)
-            end
-            
-            -- check collisions between all pairs
+            -- collisions
             for i = 1, #units do
+                -- border collision
+                local a = units[i]
+                if a:collidesBorder() then
+                    a:resolveCollisionBorder()
+                end
+                -- unit collision
                 for j = i+1, #units do
-                    local a, b = units[i], units[j]
+                    local b = units[j]
                     if a:collides(b) then
                         a:resolveCollision(b)
                         if a:attack(b) then
@@ -40,7 +48,7 @@ function Game:update(dt)
                     end
                 end
             end
-            
+                        
             -- mark and remove dead units
             for i = 1, #units do
                 local u = units[i]
@@ -59,6 +67,11 @@ function Game:update(dt)
                     end
                 end
             end
+
+            -- update units
+            for _, u in ipairs(units) do
+                u:update(dt)
+            end
         end
         
     end
@@ -75,11 +88,7 @@ function Game:draw()
         L.print("Game Speed: " .. gameSpeed, 5, 5)
         -- display unit hp values
         for _, u in ipairs(units) do
-            if u.name == "Chicken" then
-                L.print(u.hp, (u.x + 5) * bg.zoom, (u.y - 9) * bg.zoom)
-            elseif u.name == "Monkey" then
-                L.print("Monkey", (u.x) * bg.zoom, (u.y - 9) * bg.zoom)
-            end
+            L.print(u.hp, (u.x + 5) * bg.zoom, (u.y - 9) * bg.zoom)
         end
     end)
 end

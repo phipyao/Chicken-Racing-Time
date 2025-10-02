@@ -3,16 +3,16 @@ local UnitData = {}
 UnitData.chicken = {
     name = "Chicken",
     maxhp = 2,
-    atk = 0,
-    hostile = false,
+    atk = 1,
+    party = 0,
     image = loadImage("assets/chicken/chicken.png"),
 }
 
 UnitData.monkey = {
     name = "Monkey",
-    maxhp = 1.80e308,
+    maxhp = 5,
     atk = 1,
-    hostile = true,
+    party = 1,
     image = loadImage("assets/monkey/monkey.png"),
 }
 

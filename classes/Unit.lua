@@ -13,7 +13,7 @@ function Unit.new(params)
 	local instance = {
 
 		name = p.name or 0,
-		hostile = p.hostile or false,
+		party = p.party or 0,
 		maxhp = p.maxhp or 1,
 		hp = p.maxhp or 1,
 		atk = p.atk or 1,
@@ -52,10 +52,29 @@ function Unit:update(dt)
     if self.flashTimer > 0 then
         self.flashTimer = self.flashTimer - dt
     end
+	
 	-- move
 	self.x = self.x + self.vx * 60 * dt
 	self.y = self.y + self.vy * 60 * dt
+end
 
+-- world-space hitbox rectangle
+function Unit:getHitbox()
+    -- remove hitbox if unit is dead
+    if self.isDead then
+        return self.x, self.y, 0, 0
+    end
+	return self.x, self.y, self.hitboxW, self.hitboxH
+end
+
+-- border collision test using hitbox
+function Unit:collidesBorder()
+	local hx, hy, hw, hh = self:getHitbox()
+	-- bounce off left/right walls
+	return hx < 0 or hx + hw > bg.width or hy < 0 or hy + hh > bg.height
+end
+
+function Unit:resolveCollisionBorder()
 	-- get hitbox in world space
 	local hx, hy, hw, hh = self:getHitbox()
 
@@ -78,29 +97,20 @@ function Unit:update(dt)
 	end
 end
 
--- world-space hitbox rectangle
-function Unit:getHitbox()
-    -- remove hitbox if unit is dead
-    if self.isDead then
-        return self.x, self.y, 0, 0
-    end
-	return self.x, self.y, self.hitboxW, self.hitboxH
-end
-
 function Unit:attack(other)
-	if self.hostile ~= other.hostile then
+	if self.party ~= other.party then
 		self.hp = self.hp - other.atk
 		other.hp = other.hp - self.atk
 
         -- trigger flash if this unit took damage
         if other.atk > 0 then
             self.flashTimer = self.flashDuration
+			return true
         end
         if self.atk > 0 then
             other.flashTimer = other.flashDuration
+			return true
         end
-
-		return true
 	end
 	return false
 end
