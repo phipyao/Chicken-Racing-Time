@@ -31,14 +31,14 @@ function Unit.new(params)
 		vy = p.vy or vy,
 
 		-- hitbox (simpler, always top-left aligned)
-		hitboxW = p.hitboxW or 13,
-		hitboxH = p.hitboxH or 15,
+		hitboxW = p.hitboxW or 5,
+		hitboxH = p.hitboxH or 5,
 
 		-- sprite dimensions
 		image = p.image or image,
         blank = p.blank or blank,
-		ox = p.ox or -44,
-		oy = p.oy or -41,
+		ox = p.ox or 0,
+		oy = p.oy or 0,
 
         -- for taking damage
         flashTimer = 0,
@@ -191,6 +191,11 @@ function Unit:resolveCollision(other)
 	end
 end
 
+function Unit:drawHitbox()
+    local hx, hy, hw, hh = self:getHitbox()
+    L.rectangle("line", hx, hy, hw, hh)
+end
+
 function Unit:draw()
 	-- apply offset when drawing image
     local sprite = self.image
@@ -201,9 +206,7 @@ function Unit:draw()
 	if sprite then
         L.draw(sprite, self.x + self.ox, self.y + self.oy)
 	else
-		-- debug: draw hitbox
-		local hx, hy, hw, hh = self:getHitbox()
-		L.rectangle("line", hx, hy, hw, hh)
+		self:drawHitbox()
     end
 end
 

@@ -7,10 +7,14 @@ local gameSpeed = 1
 
 local shake = require("classes.ScreenShake").new()
 
+local wincon = nil
+
 function Game:load()
     units = {}
     textTimers = {}
     gameSpeed = 1
+    wincon = Unit.new()
+    table.insert(units, wincon)
     table.insert(units, Unit.new(UnitData.monkey))
     table.insert(units, Unit.new(UnitData.chicken))
 end
@@ -65,7 +69,20 @@ function Game:update(dt)
                 u:update(dt)
             end
         end
-        
+
+        -- check wincon
+        local found = false
+        for _, u in ipairs(units) do
+            if u == wincon then
+                found = true
+                break
+            end
+        end
+
+        if not found then
+            print("Wincon!")
+            gameSpeed = 0
+        end
     end
 end
 
@@ -89,8 +106,11 @@ end
 function Game:keypressed(key)
     if key == "r" then
         units = {}
+        wincon = Unit.new()
+        table.insert(units, wincon)
         table.insert(units, Unit.new(UnitData.monkey))
         table.insert(units, Unit.new(UnitData.chicken))
+        gameSpeed = 1
     elseif key:match("%d") then
         gameSpeed = tonumber(key)
     else 
