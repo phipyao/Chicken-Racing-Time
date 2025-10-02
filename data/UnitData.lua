@@ -19,13 +19,13 @@ UnitData.chicken = {
     image = loadImage("assets/chicken/chicken.png"),
     blank = loadImage("assets/chicken/outline.png"),
 
-    -- buffs = { squared = true, shield = true},
+    buffs = { regen = true },
 }
 
 UnitData.monkey = {
     name = "Monkey",
     maxhp = 5,
-    atk = 1,
+    atk = 3,
     party = 2,
     hitboxW = 13,
 	hitboxH = 13,
@@ -34,7 +34,7 @@ UnitData.monkey = {
     image = loadImage("assets/monkey/monkey.png"),
     blank = loadImage("assets/monkey/outline.png"),
 
-    buffs = { regen = true },
+    buffs = { lifesteal = true },
 }
 
 return UnitData

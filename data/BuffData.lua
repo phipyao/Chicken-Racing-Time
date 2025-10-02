@@ -1,7 +1,6 @@
 local BuffData = {}
 
 BuffData.squared = {
-    name = "Squared",
     timing = "postcombat",
     description = "Doubles this unit's attack every time it attacks.",
     apply = function(unit, other)
@@ -10,7 +9,6 @@ BuffData.squared = {
 }
 
 BuffData.shield = {
-    name = "Shield",
     timing = "precombat",
     description = "Grants +1 HP before combat.",
     apply = function(unit, other)
@@ -21,11 +19,19 @@ BuffData.shield = {
 }
 
 BuffData.regen = {
-    name = "Regen",
-    timing = "postcombat",
+    timing = "interval",
+    interval = 1.0,
     description = "Heals 1 HP after combat, up to max HP.",
     apply = function(unit, other)
         unit.hp = math.min(unit.maxhp, unit.hp + 1)
+    end,
+}
+
+BuffData.lifesteal = {
+    timing = "postcombat",
+    description = "Heals HP after combat equal to 1/2 ATK, up to max HP.",
+    apply = function(unit, other)
+        unit.hp = math.min(unit.maxhp, unit.hp + unit.atk)
     end,
 }
 

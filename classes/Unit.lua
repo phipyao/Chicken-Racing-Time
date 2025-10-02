@@ -15,10 +15,11 @@ function Unit.new(params)
 		name = p.name or 0,
 		party = p.party or 0,
 		maxhp = p.maxhp or 1,
-		hp = p.maxhp or 1,
+		hp = p.hp or p.maxhp or 1,
 		atk = p.atk or 1,
 
 		buffs = p.buffs or {},
+		buffTimers = {},
 
 		-- counters
 		randomizeBounce = true,
@@ -56,19 +57,6 @@ function Unit.new(params)
 	return instance
 end
 
-function Unit:update(dt)
-	-- store previous position
-	self.prevX, self.prevY = self.x, self.y
-
-    if self.flashTimer > 0 then
-        self.flashTimer = self.flashTimer - dt
-    end
-	
-	-- move
-	self.x = self.x + self.vx * 60 * dt
-	self.y = self.y + self.vy * 60 * dt
-end
-
 function Unit:addBuff(buff)
 	self.buffs[buff] = true
 end
@@ -77,19 +65,52 @@ function Unit:removeBuff(buff)
 	self.buffs[buff] = nil
 end
 
-local function applyBuffsByTiming(unit, other, timing)
-    for buff, active in pairs(unit.buffs) do
+function Unit:combatBuffs(other, timing)
+    for buff, active in pairs(self.buffs) do
         if active and BuffData[buff] and BuffData[buff].timing == timing then
-            BuffData[buff].apply(unit, other)
+            BuffData[buff].apply(self, other)
         end
     end
+end
+
+function Unit:tickBuffs(dt)
+    for buff, active in pairs(self.buffs) do
+        local def = BuffData[buff]
+        if active and def and def.timing == "interval" then
+            if not self.buffTimers[buff] then
+                self.buffTimers[buff] = def.interval
+            end
+
+            self.buffTimers[buff] = self.buffTimers[buff] - dt
+
+            if self.buffTimers[buff] <= 0 then
+                def.apply(self)
+                self.buffTimers[buff] = def.interval
+            end
+        end
+    end
+end
+
+function Unit:update(dt)
+	-- store previous position
+	self.prevX, self.prevY = self.x, self.y
+
+    if self.flashTimer > 0 then
+        self.flashTimer = self.flashTimer - dt
+    end
+
+	self:tickBuffs(dt)
+	
+	-- move
+	self.x = self.x + self.vx * 60 * dt
+	self.y = self.y + self.vy * 60 * dt
 end
 
 function Unit:attack(other)
     if self.party ~= other.party then
         -- === Precombat Buffs ===
-        applyBuffsByTiming(self, other, "precombat")
-    	applyBuffsByTiming(other, self, "precombat")
+        self:combatBuffs(other, "precombat")
+        other:combatBuffs(self, "precombat")
 
         -- === Damage Calculation ===
         local selfDamage = self.hp - other.atk
@@ -113,8 +134,8 @@ function Unit:attack(other)
         end
 
         -- === Postcombat Buffs ===
-        applyBuffsByTiming(self, other, "postcombat")
-    	applyBuffsByTiming(other, self, "postcombat")
+       	self:combatBuffs(other, "postcombat")
+        other:combatBuffs(self, "postcombat")
 
         return result
     end
