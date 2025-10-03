@@ -92,11 +92,11 @@ function Game:update(dt)
                     a:resolveCollisionBorder()
                 end
                 -- unit collision
-                for j = i+1, #units do
+                for j = i + 1, #units do
                     local b = units[j]
                     if a:collides(b) then
                         a:resolveCollision(b)
-                        if a:attack(b) then
+                        if a:attack(b) and not b.immovable then
                             -- activate effects
                             shake:trigger()
                             hitSound:trigger()
@@ -104,7 +104,7 @@ function Game:update(dt)
                     end
                 end
             end
-                        
+
             -- mark and remove dead units
             for i = 1, #units do
                 local u = units[i]
@@ -146,7 +146,7 @@ function Game:draw()
         L.print("Game Speed: " .. gameSpeed, 5, 21)
         -- display unit stats
         for _, u in ipairs(units) do
-            L.print(u.hp, (u.x + u.hitboxW/2) * bg.zoom - 4, (u.y - 9) * bg.zoom)
+            L.print(u.hp, (u.x + u.hitboxW / 2) * bg.zoom - 4, (u.y - 9) * bg.zoom)
             -- L.print(u.hp .. " " ..  u.wallBounceCount .. " " .. u.unitBounceCount, (u.x + 5) * bg.zoom, (u.y - 9) * bg.zoom)
 
             -- debug: print buffs
@@ -159,6 +159,27 @@ function Game:draw()
             -- L.print(u.hp .. " " .. u.atk .. " [ " .. buffText .. "]", u.x * bg.zoom, (u.y - 9) * bg.zoom)
         end
     end)
+end
+
+local blocks = {
+    { name = 'O', pieces = 4, xOffsets = { 0, 10, 0, 10 },  yOffsets = { 0, 0, 10, 10 } },
+    { name = 'I', pieces = 4, xOffsets = { 0, 0, 0, 0 },    yOffsets = { 0, 10, 20, 30 } },
+    { name = "L", pieces = 4, xOffsets = { 0, 0, 0, 10 },   yOffsets = { 0, 10, 20, 20 } },
+    { name = "J", pieces = 4, xOffsets = { 0, 0, 0, -10 },  yOffsets = { 0, 10, 20, 20 } },
+    { name = "S", pieces = 4, xOffsets = { 0, 10, 10, 20 }, yOffsets = { 0, 0, -10, -10 } },
+    { name = "Z", pieces = 4, xOffsets = { 0, 0, 0, -10 },  yOffsets = { 0, 10, 20, 20 } },
+    { name = "T", pieces = 4, xOffsets = { 0, 10, 20, 10 }, yOffsets = { 0, 0, 0, 10 } }
+}
+
+function Game:mousepressed(x, y, button)
+    if button == 1 then
+        local block = random(#blocks)
+        for i = 1, blocks[block].pieces do
+            table.insert(units,
+                Unit.new(setmetatable({ x = x + blocks[block].xOffsets[i], y = y + blocks[block].yOffsets[i] },
+                    { __index = UnitData.wall })))
+        end
+    end
 end
 
 function Game:keypressed(key)
@@ -180,7 +201,7 @@ function Game:keypressed(key)
         gameSpeed = 1
     elseif key:match("%d") then
         gameSpeed = tonumber(key)
-    else 
+    else
         table.insert(units, Unit.new(UnitData.chicken))
     end
 end

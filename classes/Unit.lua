@@ -5,46 +5,47 @@ Unit = {}
 Unit.__index = Unit
 
 function Unit.new(params)
-	local p = params or {}
-	local image = nil
-	local blank = nil
+    local p = params or {}
+    local image = nil
+    local blank = nil
 
-	local vx, vy = randomDir()
+    local vx, vy = randomDir()
 
-	local instance = {
-		name = p.name or 0,
-		party = p.party or 0,
-		maxhp = p.maxhp or 1,
-		hp = p.hp or p.maxhp or 1,
-		atk = p.atk or 1,
+    local instance = {
+        name = p.name or 0,
+        party = p.party or 0,
+        maxhp = p.maxhp or 1,
+        hp = p.hp or p.maxhp or 1,
+        atk = p.atk or 1,
+        immovable = p.immovable or false,
 
-		buffs = p.buffs or {},
-		buffTimers = {},
+        buffs = p.buffs or {},
+        buffTimers = {},
 
-		-- counters
-		randomizeBounce = true,
-		bounceCount = 0,
-		unitBounceCount = 0,
-		wallBounceCount = 0,
+        -- counters
+        randomizeBounce = true,
+        bounceCount = 0,
+        unitBounceCount = 0,
+        wallBounceCount = 0,
 
-		lastHit = nil,
-		killCount = 0,
+        lastHit = nil,
+        killCount = 0,
 
-		-- position variables
-		x = p.x or random(bg.width),
-		y = p.y or random(bg.height),
-		vx = p.vx or vx,
-		vy = p.vy or vy,
+        -- position variables
+        x = p.x or random(bg.width),
+        y = p.y or random(bg.height),
+        vx = p.vx or vx,
+        vy = p.vy or vy,
 
-		-- hitbox (simpler, always top-left aligned)
-		hitboxW = p.hitboxW or 5,
-		hitboxH = p.hitboxH or 5,
+        -- hitbox (simpler, always top-left aligned)
+        hitboxW = p.hitboxW or 5,
+        hitboxH = p.hitboxH or 5,
 
-		-- sprite dimensions
-		image = p.image or image,
+        -- sprite dimensions
+        image = p.image or image,
         blank = p.blank or blank,
-		ox = p.ox or 0,
-		oy = p.oy or 0,
+        ox = p.ox or 0,
+        oy = p.oy or 0,
 
         -- for taking damage
         flashTimer = 0,
@@ -52,17 +53,17 @@ function Unit.new(params)
         isDead = false,
         deathTimer = 0,
         deathDuration = 0.1,
-	}
-	setmetatable(instance, Unit)
-	return instance
+    }
+    setmetatable(instance, Unit)
+    return instance
 end
 
 function Unit:addBuff(buff)
-	self.buffs[buff] = true
+    self.buffs[buff] = true
 end
 
 function Unit:removeBuff(buff)
-	self.buffs[buff] = nil
+    self.buffs[buff] = nil
 end
 
 function Unit:combatBuffs(other, timing)
@@ -92,18 +93,20 @@ function Unit:tickBuffs(dt)
 end
 
 function Unit:update(dt)
-	-- store previous position
-	self.prevX, self.prevY = self.x, self.y
+    -- store previous position
+    self.prevX, self.prevY = self.x, self.y
 
     if self.flashTimer > 0 then
         self.flashTimer = self.flashTimer - dt
     end
 
-	self:tickBuffs(dt)
-	
-	-- move
-	self.x = self.x + self.vx * 60 * dt
-	self.y = self.y + self.vy * 60 * dt
+    self:tickBuffs(dt)
+
+    if (not self.immoveable) then
+        -- move
+        self.x = self.x + self.vx * 60 * dt
+        self.y = self.y + self.vy * 60 * dt
+    end
 end
 
 function Unit:attack(other)
@@ -134,7 +137,7 @@ function Unit:attack(other)
         end
 
         -- === Postcombat Buffs ===
-       	self:combatBuffs(other, "postcombat")
+        self:combatBuffs(other, "postcombat")
         other:combatBuffs(self, "postcombat")
 
         return result
@@ -148,18 +151,18 @@ function Unit:getHitbox()
     if self.isDead then
         return self.x, self.y, 0, 0
     end
-	return self.x, self.y, self.hitboxW, self.hitboxH
+    return self.x, self.y, self.hitboxW, self.hitboxH
 end
 
 function Unit:bounce(dx, dy, collisionType)
-	if self.bounceCount % 5 == 0 then
-		self.randomizeBounce = true
-	end
-	
+    if self.bounceCount % 5 == 0 then
+        self.randomizeBounce = true
+    end
+
     if self.randomizeBounce then
         -- random bounce
         self.vx, self.vy = randomDirHalf(dx, dy)
-		self.randomizeBounce = false
+        self.randomizeBounce = false
     else
         -- normal bounce (flip component along the normal)
         if dx ~= 0 then self.vx = -self.vx end
@@ -171,16 +174,15 @@ function Unit:bounce(dx, dy, collisionType)
     if collisionType == "unit" then
         self.unitBounceCount = self.unitBounceCount + 1
     elseif collisionType == "wall" then
-		self.wallBounceCount = self.wallBounceCount + 1
-	end
-
+        self.wallBounceCount = self.wallBounceCount + 1
+    end
 end
 
 -- border collision test using hitbox
 function Unit:collidesBorder()
-	local hx, hy, hw, hh = self:getHitbox()
-	-- bounce off left/right walls
-	return hx < 0 or hx + hw > bg.width or hy < 0 or hy + hh > bg.height
+    local hx, hy, hw, hh = self:getHitbox()
+    -- bounce off left/right walls
+    return hx < 0 or hx + hw > bg.width or hy < 0 or hy + hh > bg.height
 end
 
 function Unit:resolveCollisionBorder()
@@ -189,7 +191,7 @@ function Unit:resolveCollisionBorder()
     -- left/right wall
     if hx < 0 then
         self.x = 0
-		self:bounce(1, 0, "wall")
+        self:bounce(1, 0, "wall")
     elseif hx + hw > bg.width then
         self.x = bg.width - hw
         self:bounce(-1, 0, "wall")
@@ -207,51 +209,59 @@ end
 
 -- collision test using hitboxes
 function Unit:collides(other)
-	local ax, ay, aw, ah = self:getHitbox()
-	local bx, by, bw, bh = other:getHitbox()
+    local ax, ay, aw, ah = self:getHitbox()
+    local bx, by, bw, bh = other:getHitbox()
 
-	return ax < bx + bw and ax + aw > bx and ay < by + bh and ay + ah > by
+    return ax < bx + bw and ax + aw > bx and ay < by + bh and ay + ah > by
 end
 
 -- Resolve collision by bouncing
 function Unit:resolveCollision(other)
-	-- get hitboxes
-	local ax, ay, aw, ah = self:getHitbox()
-	local bx, by, bw, bh = other:getHitbox()
+    -- get hitboxes
+    local ax, ay, aw, ah = self:getHitbox()
+    local bx, by, bw, bh = other:getHitbox()
 
-	-- centers
-	local acx, acy = ax + aw / 2, ay + ah / 2
-	local bcx, bcy = bx + bw / 2, by + bh / 2
+    -- centers
+    local acx, acy = ax + aw / 2, ay + ah / 2
+    local bcx, bcy = bx + bw / 2, by + bh / 2
 
-	-- overlap along x and y
-	local overlapX = (aw / 2 + bw / 2) - math.abs(acx - bcx)
-	local overlapY = (ah / 2 + bh / 2) - math.abs(acy - bcy)
+    -- overlap along x and y
+    local overlapX = (aw / 2 + bw / 2) - math.abs(acx - bcx)
+    local overlapY = (ah / 2 + bh / 2) - math.abs(acy - bcy)
 
-	if overlapX < overlapY then
-		if acx < bcx then
-			self.x = self.x - overlapX / 2
-			other.x = other.x + overlapX / 2
-			self:bounce(-1, 0, "unit")
-			other:bounce(1, 0, "unit")
-		else
-			self.x = self.x + overlapX / 2
-			other.x = other.x - overlapX / 2
-			self:bounce(1, 0, "unit")
-			other:bounce(-1, 0, "unit")
-		end
-	else
-		if acy < bcy then
-			self.y = self.y - overlapY / 2
-			other.y = other.y + overlapY / 2
-			self:bounce(0, -1, "unit")
-			other:bounce(0, 1, "unit")
-		else
-			self.y = self.y + overlapY / 2
-			other.y = other.y - overlapY / 2
-			self:bounce(0, 1, "unit")
-			other:bounce(0, -1, "unit")
-		end
-	end
+    if overlapX < overlapY then
+        if acx < bcx then
+            self.x = self.x - overlapX / 2
+            if not self.immovable then self:bounce(-1, 0, "unit") else self.wallBounceCount = self.wallBounceCount + 1 end
+            if not other.immovable then
+                other:bounce(1, 0, "unit")
+                other.x = other.x + overlapX / 2
+            end
+        else
+            self.x = self.x + overlapX / 2
+            if not self.immovable then self:bounce(1, 0, "unit") else self.wallBounceCount = self.wallBounceCount + 1 end
+            if not other.immovable then
+                other:bounce(-1, 0, "unit")
+                other.x = other.x - overlapX / 2
+            end
+        end
+    else
+        if acy < bcy then
+            self.y = self.y - overlapY / 2
+            if not self.immovable then self:bounce(0, -1, "unit") else self.wallBounceCount = self.wallBounceCount + 1 end
+            if not other.immovable then
+                other:bounce(0, 1, "unit")
+                other.y = other.y + overlapY / 2
+            end
+        else
+            self.y = self.y + overlapY / 2
+            if not self.immovable then self:bounce(0, 1, "unit") else self.wallBounceCount = self.wallBounceCount + 1 end
+            if not other.immovable then
+                other:bounce(0, -1, "unit")
+                other.y = other.y - overlapY / 2
+            end
+        end
+    end
 end
 
 function Unit:drawHitbox()
@@ -260,16 +270,16 @@ function Unit:drawHitbox()
 end
 
 function Unit:draw()
-	-- apply offset when drawing image
+    -- apply offset when drawing image
     local sprite = self.image
     if self.flashTimer > 0 then
         sprite = self.blank
     end
 
-	if sprite then
+    if sprite then
         L.draw(sprite, self.x + self.ox, self.y + self.oy)
-	else
-		self:drawHitbox()
+    else
+        self:drawHitbox()
     end
 end
 
