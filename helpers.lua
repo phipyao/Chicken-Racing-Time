@@ -15,7 +15,7 @@ Font = L.newFont("assets/m6x11.ttf", 16)
 Font:setFilter("nearest", "nearest")
 L.setFont(Font)
 
-hitSound = require("classes.SFX").new({path = "assets/sounds/clack.wav"})
+hitSound = require("classes.SFX").new({path = "assets/sounds/bonk.mp3"})
 
 -- safe screen switcher
 function switch(screen)

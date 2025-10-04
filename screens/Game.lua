@@ -188,10 +188,9 @@ local function clickOnUnit(x, y)
 end
 
 function Game:mousepressed(x, y, button)
-    local clickedUnit = clickOnUnit(x, y)
+    -- local clickedUnit = clickOnUnit(x, y)
 
     if button == 1 then
-        if clickedUnit then return end
         local block = random(#blocks)
         for i = 1, blocks[block].pieces do
             table.insert(units,
