@@ -40,7 +40,7 @@ UnitData.ctfFlag = {
 
 UnitData.wall = {
     name = "Wall",
-    maxhp = math.huge,
+    maxhp = 1,
     static = true,
     hitboxW = 10,
     hitboxH = 10,
