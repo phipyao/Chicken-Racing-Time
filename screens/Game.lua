@@ -163,18 +163,41 @@ function Game:draw()
     end)
 end
 
+-- local blocks = {
+--     { name = 'O', pieces = 4, xOffsets = { 0, 10, 0, 10 },  yOffsets = { 0, 0, 10, 10 } },
+--     { name = 'I', pieces = 4, xOffsets = { 0, 0, 0, 0 },    yOffsets = { 0, 10, 20, 30 } },
+--     { name = "L", pieces = 4, xOffsets = { 0, 0, 0, 10 },   yOffsets = { 0, 10, 20, 20 } },
+--     { name = "J", pieces = 4, xOffsets = { 0, 0, 0, -10 },  yOffsets = { 0, 10, 20, 20 } },
+--     { name = "S", pieces = 4, xOffsets = { 0, 10, 10, 20 }, yOffsets = { 0, 0, -10, -10 } },
+--     { name = "Z", pieces = 4, xOffsets = { 0, 0, 0, -10 },  yOffsets = { 0, 10, 20, 20 } },
+--     { name = "T", pieces = 4, xOffsets = { 0, 10, 20, 10 }, yOffsets = { 0, 0, 0, 10 } }
+-- }
+
 local blocks = {
-    { name = 'O', pieces = 4, xOffsets = { 0, 10, 0, 10 },  yOffsets = { 0, 0, 10, 10 } },
-    { name = 'I', pieces = 4, xOffsets = { 0, 0, 0, 0 },    yOffsets = { 0, 10, 20, 30 } },
-    { name = "L", pieces = 4, xOffsets = { 0, 0, 0, 10 },   yOffsets = { 0, 10, 20, 20 } },
-    { name = "J", pieces = 4, xOffsets = { 0, 0, 0, -10 },  yOffsets = { 0, 10, 20, 20 } },
-    { name = "S", pieces = 4, xOffsets = { 0, 10, 10, 20 }, yOffsets = { 0, 0, -10, -10 } },
-    { name = "Z", pieces = 4, xOffsets = { 0, 0, 0, -10 },  yOffsets = { 0, 10, 20, 20 } },
-    { name = "T", pieces = 4, xOffsets = { 0, 10, 20, 10 }, yOffsets = { 0, 0, 0, 10 } }
+    { pieces = 1, xOffsets = { -5 }, yOffsets = { -5 } },
 }
 
+local function clickOnUnit(x, y)
+    for _, u in ipairs(units) do
+        local hx, hy, hw, hh = u:getHitbox()
+        if x >= hx and x <= hx + hw and y >= hy and y <= hy + hh then
+            return u
+        end
+    end
+    return nil
+end
+
 function Game:mousepressed(x, y, button)
+    local clickedUnit = clickOnUnit(x, y)
+    
     if button == 1 then
+        if clickedUnit then
+            clickedUnit.vx, clickedUnit.vy = randomDir()
+        end
+    end
+
+    if button == 2 then
+        if clickedUnit then return end
         local block = random(#blocks)
         for i = 1, blocks[block].pieces do
             table.insert(units,

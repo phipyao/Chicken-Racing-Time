@@ -22,7 +22,7 @@ function Unit.new(params)
         buffTimers = {},
         
         -- counters
-        randomizeBounce = false,
+        randomizeBounce = true,
         bounceCount = 0,
         unitBounceCount = 0,
         wallBounceCount = 0,
