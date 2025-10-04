@@ -96,7 +96,7 @@ function Game:update(dt)
                     local b = units[j]
                     if a:collides(b) then
                         a:resolveCollision(b)
-                        if a:attack(b) and not b.immovable then
+                        if a:attack(b) and not b.static then
                             -- activate effects
                             shake:trigger()
                             hitSound:trigger()
@@ -146,7 +146,9 @@ function Game:draw()
         L.print("Game Speed: " .. gameSpeed, 5, 21)
         -- display unit stats
         for _, u in ipairs(units) do
-            L.print(u.hp, (u.x + u.hitboxW / 2) * bg.zoom - 4, (u.y - 9) * bg.zoom)
+            if u.name ~= "Wall" then
+                L.print(u.hp, (u.x + u.hitboxW / 2) * bg.zoom - 4, (u.y - 9) * bg.zoom)
+            end
             -- L.print(u.hp .. " " ..  u.wallBounceCount .. " " .. u.unitBounceCount, (u.x + 5) * bg.zoom, (u.y - 9) * bg.zoom)
 
             -- debug: print buffs

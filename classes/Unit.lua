@@ -17,7 +17,7 @@ function Unit.new(params)
         maxhp = p.maxhp or 1,
         hp = p.hp or p.maxhp or 1,
         atk = p.atk or 1,
-        immovable = p.immovable or false,
+        static = p.static or false,
 
         buffs = p.buffs or {},
         buffTimers = {},
@@ -94,19 +94,21 @@ end
 
 function Unit:update(dt)
     -- store previous position
-    self.prevX, self.prevY = self.x, self.y
 
+    if self.static then return
+    end
+
+    self.prevX, self.prevY = self.x, self.y
+    
+    self:tickBuffs(dt)
+    
     if self.flashTimer > 0 then
         self.flashTimer = self.flashTimer - dt
     end
 
-    self:tickBuffs(dt)
 
-    if (not self.immoveable) then
-        -- move
-        self.x = self.x + self.vx * 60 * dt
-        self.y = self.y + self.vy * 60 * dt
-    end
+    self.x = self.x + self.vx * 60 * dt
+    self.y = self.y + self.vy * 60 * dt
 end
 
 function Unit:attack(other)
@@ -230,38 +232,30 @@ function Unit:resolveCollision(other)
     local overlapY = (ah / 2 + bh / 2) - math.abs(acy - bcy)
 
     if overlapX < overlapY then
-        if acx < bcx then
-            self.x = self.x - overlapX / 2
-            if not self.immovable then self:bounce(-1, 0, "unit") else self.wallBounceCount = self.wallBounceCount + 1 end
-            if not other.immovable then
-                other:bounce(1, 0, "unit")
-                other.x = other.x + overlapX / 2
-            end
-        else
-            self.x = self.x + overlapX / 2
-            if not self.immovable then self:bounce(1, 0, "unit") else self.wallBounceCount = self.wallBounceCount + 1 end
-            if not other.immovable then
-                other:bounce(-1, 0, "unit")
-                other.x = other.x - overlapX / 2
-            end
-        end
-    else
-        if acy < bcy then
-            self.y = self.y - overlapY / 2
-            if not self.immovable then self:bounce(0, -1, "unit") else self.wallBounceCount = self.wallBounceCount + 1 end
-            if not other.immovable then
-                other:bounce(0, 1, "unit")
-                other.y = other.y + overlapY / 2
-            end
-        else
-            self.y = self.y + overlapY / 2
-            if not self.immovable then self:bounce(0, 1, "unit") else self.wallBounceCount = self.wallBounceCount + 1 end
-            if not other.immovable then
-                other:bounce(0, -1, "unit")
-                other.y = other.y - overlapY / 2
-            end
-        end
-    end
+		if acx < bcx then
+			self.x = self.x - overlapX / 2
+			other.x = other.x + overlapX / 2
+			self:bounce(-1, 0, "unit")
+			other:bounce(1, 0, "unit")
+		else
+			self.x = self.x + overlapX / 2
+			other.x = other.x - overlapX / 2
+			self:bounce(1, 0, "unit")
+			other:bounce(-1, 0, "unit")
+		end
+	else
+		if acy < bcy then
+			self.y = self.y - overlapY / 2
+			other.y = other.y + overlapY / 2
+			self:bounce(0, -1, "unit")
+			other:bounce(0, 1, "unit")
+		else
+			self.y = self.y + overlapY / 2
+			other.y = other.y - overlapY / 2
+			self:bounce(0, 1, "unit")
+			other:bounce(0, -1, "unit")
+		end
+	end
 end
 
 function Unit:drawHitbox()
