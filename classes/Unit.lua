@@ -17,21 +17,21 @@ function Unit.new(params)
         maxhp = p.maxhp or 1,
         hp = p.hp or p.maxhp or 1,
         atk = p.atk or 1,
-        static = p.static or false,
-
+        
         buffs = p.buffs or {},
         buffTimers = {},
-
+        
         -- counters
-        randomizeBounce = true,
+        randomizeBounce = false,
         bounceCount = 0,
         unitBounceCount = 0,
         wallBounceCount = 0,
-
+        
         lastHit = nil,
         killCount = 0,
-
+        
         -- position variables
+        static = p.static or false,
         x = p.x or random(bg.width),
         y = p.y or random(bg.height),
         vx = p.vx or vx,
@@ -93,11 +93,9 @@ function Unit:tickBuffs(dt)
 end
 
 function Unit:update(dt)
+    if self.static then return end
+
     -- store previous position
-
-    if self.static then return
-    end
-
     self.prevX, self.prevY = self.x, self.y
     
     self:tickBuffs(dt)
@@ -157,18 +155,14 @@ function Unit:getHitbox()
 end
 
 function Unit:bounce(dx, dy, collisionType)
-    if self.bounceCount % 5 == 0 then
-        self.randomizeBounce = true
-    end
-
-    if self.randomizeBounce then
-        -- random bounce
+    
+    -- normal bounce (flip component along the normal)
+    if dx ~= 0 then self.vx = -self.vx end
+    if dy ~= 0 then self.vy = -self.vy end
+    
+    -- random bounce
+    if self.randomizeBounce and self.bounceCount % 5 == 0 then
         self.vx, self.vy = randomDirHalf(dx, dy)
-        self.randomizeBounce = false
-    else
-        -- normal bounce (flip component along the normal)
-        if dx ~= 0 then self.vx = -self.vx end
-        if dy ~= 0 then self.vy = -self.vy end
     end
 
     -- increment counters
@@ -231,31 +225,31 @@ function Unit:resolveCollision(other)
     local overlapX = (aw / 2 + bw / 2) - math.abs(acx - bcx)
     local overlapY = (ah / 2 + bh / 2) - math.abs(acy - bcy)
 
+    local function resolveDynamic(dynamic, dx, dy)
+        dynamic.x = dynamic.x + dx
+        dynamic.y = dynamic.y + dy
+        dynamic:bounce(dx ~= 0 and (dx > 0 and 1 or -1) or 0,
+                       dy ~= 0 and (dy > 0 and 1 or -1) or 0,
+                       "unit")
+    end
+
     if overlapX < overlapY then
-		if acx < bcx then
-			self.x = self.x - overlapX / 2
-			other.x = other.x + overlapX / 2
-			self:bounce(-1, 0, "unit")
-			other:bounce(1, 0, "unit")
-		else
-			self.x = self.x + overlapX / 2
-			other.x = other.x - overlapX / 2
-			self:bounce(1, 0, "unit")
-			other:bounce(-1, 0, "unit")
-		end
-	else
-		if acy < bcy then
-			self.y = self.y - overlapY / 2
-			other.y = other.y + overlapY / 2
-			self:bounce(0, -1, "unit")
-			other:bounce(0, 1, "unit")
-		else
-			self.y = self.y + overlapY / 2
-			other.y = other.y - overlapY / 2
-			self:bounce(0, 1, "unit")
-			other:bounce(0, -1, "unit")
-		end
-	end
+        if acx < bcx then
+            if not self.static then resolveDynamic(self, -overlapX, 0) end
+            if not other.static then resolveDynamic(other, overlapX, 0) end
+        else
+            if not self.static then resolveDynamic(self, overlapX, 0) end
+            if not other.static then resolveDynamic(other, -overlapX, 0) end
+        end
+    else
+        if acy < bcy then
+            if not self.static then resolveDynamic(self, 0, -overlapY) end
+            if not other.static then resolveDynamic(other, 0, overlapY) end
+        else
+            if not self.static then resolveDynamic(self, 0, overlapY) end
+            if not other.static then resolveDynamic(other, 0, -overlapY) end
+        end
+    end
 end
 
 function Unit:drawHitbox()

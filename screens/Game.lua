@@ -148,8 +148,8 @@ function Game:draw()
         for _, u in ipairs(units) do
             if u.name ~= "Wall" then
                 L.print(u.hp, (u.x + u.hitboxW / 2) * bg.zoom - 4, (u.y - 9) * bg.zoom)
+                -- L.print(u.hp .. " " ..  u.wallBounceCount .. " " .. u.unitBounceCount, (u.x + 5) * bg.zoom, (u.y - 9) * bg.zoom)
             end
-            -- L.print(u.hp .. " " ..  u.wallBounceCount .. " " .. u.unitBounceCount, (u.x + 5) * bg.zoom, (u.y - 9) * bg.zoom)
 
             -- debug: print buffs
             -- local buffText = ""
