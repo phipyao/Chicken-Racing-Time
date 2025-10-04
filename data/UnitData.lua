@@ -1,23 +1,6 @@
 local UnitData = {}
 
-UnitData.ctfFlag = {
-    name = "Flag",
-    maxhp = 5,
-    atk = 0,
-    party = 0,
-}
-
-UnitData.wall = {
-    name = "Wall",
-    maxhp = math.huge,
-    static = true,
-    hitboxW = 10,
-    hitboxH = 10,
-    atk = 0,
-    party = 0,
-    vx = 0,
-    vy = 0,
-}
+-- === Playable Units ===
 
 UnitData.chicken = {
     name = "Chicken",
@@ -44,7 +27,25 @@ UnitData.monkey = {
     oy = -44,
     image = loadImage("assets/monkey/monkey.png"),
     blank = loadImage("assets/monkey/outline.png"),
+}
 
+-- === Non Playable Units ===
+
+UnitData.ctfFlag = {
+    name = "Flag",
+    maxhp = 5,
+    atk = 0,
+    party = 0,
+}
+
+UnitData.wall = {
+    name = "Wall",
+    maxhp = math.huge,
+    static = true,
+    hitboxW = 10,
+    hitboxH = 10,
+    atk = 0,
+    party = 0
 }
 
 return UnitData
