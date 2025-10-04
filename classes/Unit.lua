@@ -225,29 +225,31 @@ function Unit:resolveCollision(other)
     local overlapX = (aw / 2 + bw / 2) - math.abs(acx - bcx)
     local overlapY = (ah / 2 + bh / 2) - math.abs(acy - bcy)
 
-    local function resolveDynamic(dynamic, dx, dy)
+    local collisionType = (other.name == "Wall" or self.name == "Wall") and "wall" or "unit"
+
+    local function resolveBounce(dynamic, dx, dy)
         dynamic.x = dynamic.x + dx
         dynamic.y = dynamic.y + dy
         dynamic:bounce(dx ~= 0 and (dx > 0 and 1 or -1) or 0,
                        dy ~= 0 and (dy > 0 and 1 or -1) or 0,
-                       "unit")
+                       collisionType)
     end
 
     if overlapX < overlapY then
         if acx < bcx then
-            if not self.static then resolveDynamic(self, -overlapX, 0) end
-            if not other.static then resolveDynamic(other, overlapX, 0) end
+            if not self.static then resolveBounce(self, -overlapX, 0) end
+            if not other.static then resolveBounce(other, overlapX, 0) end
         else
-            if not self.static then resolveDynamic(self, overlapX, 0) end
-            if not other.static then resolveDynamic(other, -overlapX, 0) end
+            if not self.static then resolveBounce(self, overlapX, 0) end
+            if not other.static then resolveBounce(other, -overlapX, 0) end
         end
     else
         if acy < bcy then
-            if not self.static then resolveDynamic(self, 0, -overlapY) end
-            if not other.static then resolveDynamic(other, 0, overlapY) end
+            if not self.static then resolveBounce(self, 0, -overlapY) end
+            if not other.static then resolveBounce(other, 0, overlapY) end
         else
-            if not self.static then resolveDynamic(self, 0, overlapY) end
-            if not other.static then resolveDynamic(other, 0, -overlapY) end
+            if not self.static then resolveBounce(self, 0, overlapY) end
+            if not other.static then resolveBounce(other, 0, -overlapY) end
         end
     end
 end
