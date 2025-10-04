@@ -189,14 +189,8 @@ end
 
 function Game:mousepressed(x, y, button)
     local clickedUnit = clickOnUnit(x, y)
-    
-    if button == 1 then
-        if clickedUnit then
-            clickedUnit.vx, clickedUnit.vy = randomDir()
-        end
-    end
 
-    if button == 2 then
+    if button == 1 then
         if clickedUnit then return end
         local block = random(#blocks)
         for i = 1, blocks[block].pieces do
