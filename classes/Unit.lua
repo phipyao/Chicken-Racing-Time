@@ -268,6 +268,9 @@ function Unit:draw()
 
     if sprite then
         L.draw(sprite, self.x + self.ox, self.y + self.oy)
+        if debug then
+            self:drawHitbox()
+        end
     else
         self:drawHitbox()
     end

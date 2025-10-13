@@ -16,7 +16,7 @@ function SFX.new(params)
 end
 
 function SFX:trigger()
-    local pitch = self.basePitch + (love.math.random() * 2 - 1) * self.randPitch
+    local pitch = self.basePitch + (random() * 2 - 1) * self.randPitch
     self.source:setPitch(pitch)
     self.source:setVolume(self.volume)
     self.source:stop()

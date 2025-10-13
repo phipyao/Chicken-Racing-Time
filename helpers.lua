@@ -11,6 +11,8 @@ cos = math.cos
 pi = math.pi
 random = math.random
 
+debug = false
+
 Font = L.newFont("assets/m6x11.ttf", 16)
 Font:setFilter("nearest", "nearest")
 L.setFont(Font)
@@ -69,15 +71,8 @@ function camera(drawFn)
 	L.pop()
 end
 
-function cameraText(drawFn)
-	L.push()
-	L.translate((bg.centerX - bg.width / 2) * bg.zoom, (bg.centerY - bg.height / 2) * bg.zoom)
-	drawFn()
-	L.pop()
-end
-
 function cameraResize(w, h)
-	bg.zoom = max(floor(min(w / bg.width, h / bg.height)), 1)
+	bg.zoom = max((min(w / bg.width, h / bg.height)), 1)
 	bg.centerX = floor((w / 2) / bg.zoom)
 	bg.centerY = floor((h / 2) / bg.zoom)
 end

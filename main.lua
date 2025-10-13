@@ -6,7 +6,8 @@ Chicks = require("screens.Chicks")
 
 screens = {
     Game,
-    Chicks
+    Shop,
+    Home,
 }
 
 screen = Game

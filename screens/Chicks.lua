@@ -49,8 +49,6 @@ function Chicks:draw()
             u:draw()
         end
     end)
-    cameraText(function()
-    end)
 end
 
 function Chicks:keypressed(key)
