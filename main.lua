@@ -1,16 +1,17 @@
 -- main.lua
 require("helpers")
 
+Home = require("screens.Home")
 Game = require("screens.Game")
-Chicks = require("screens.Chicks")
+Shop = require("screens.Shop")
 
 screens = {
+    Home,
     Game,
     Shop,
-    Home,
 }
 
-screen = Game
+screen = Shop
 
 function love.load()
     loadBG()
@@ -33,6 +34,11 @@ end
 function love.mousepressed(x, y, button)
     x, y = screenToWorld(x, y)
     switch(screen):mousepressed(x, y, button)
+end
+
+function love.mousereleased(x, y, button)
+    x, y = screenToWorld(x, y)
+    switch(screen):mousereleased(x, y, button)
 end
 
 function love.mousemoved(x, y)
