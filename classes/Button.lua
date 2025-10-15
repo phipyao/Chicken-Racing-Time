@@ -10,7 +10,10 @@ function Button.new(params)
         y = p.y or 0,
         w = p.w or 100,
         h = p.h or 40,
-        oy = p.oy or -5,
+        oy = p.oy or -3,
+        time = random(0, pi),
+        angle = 0,
+        scalar = 200,
 
         isPressed = false,
         isHovered = false,
@@ -28,18 +31,27 @@ function Button:update(dt)
 
     if self.isPressed then
         targetOffset = 0
+        self.angle = 0
     elseif self.isHovered then
         targetOffset = self.oy
+        self.time = self.time + dt
+        self.angle = sin(self.time) / self.scalar
     end
 
     -- smooth lerp
     local speed = 30 * dt
     self.offsetY = self.offsetY + (targetOffset - self.offsetY) * speed
+
+   
 end
 
 function Button:draw()
-    color(0, 0, 0, 0.5):rectangle("fill", self.x, self.y, self.w, self.h)
-    L.rectangle("fill", self.x, self.y + self.offsetY, self.w, self.h)
+    C.shadow:rectangle("fill", self.x, self.y+1, self.w, self.h)
+    C.brown2:rotatedRectangle("fill", self.x, self.y + self.offsetY, self.w, self.h, self.angle)
+    L.setLineWidth(2)
+    C.brown3:rotatedRectangle("line", self.x, self.y + self.offsetY, self.w, self.h, self.angle)
+    L.setLineWidth(1)
+
 end
 
 function Button:mousemoved(x, y)

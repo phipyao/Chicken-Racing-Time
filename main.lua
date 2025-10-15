@@ -1,5 +1,16 @@
 -- main.lua
 require("helpers")
+local lurker = require("libs.lurker")
+lurker.postswap = function() love.load() end
+
+C = {
+    white = color(235, 237, 233),
+    brown1 = color(192, 148, 115),
+    brown2 = color(173, 119, 87),
+    brown3 = color(122, 72, 65),
+    black = color(52, 28, 39),
+    shadow = color(0, 0, 0, 0.5),
+}
 
 Home = require("screens.Home")
 Game = require("screens.Game")
@@ -14,7 +25,7 @@ screens = {
 screen = Shop
 
 function love.load()
-    loadBG()
+    loadWindow()
     -- preload all screens
     for _, s in ipairs(screens) do
         switch(s):load()
@@ -24,6 +35,7 @@ end
 function love.update(dt)
     cameraResize(L.getDimensions())
     switch(screen):update(dt)
+    lurker.update()
 end
 
 function love.draw()

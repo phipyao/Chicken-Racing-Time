@@ -47,6 +47,27 @@ function loadImage(path)
 	return img
 end
 
+function loadWindow()
+	love.window.setTitle("CRT")
+	love.window.setMode(
+		bg.width * bg.zoom, 
+		bg.height * bg.zoom, { 
+			resizable = true, 
+			-- display = 2, 
+			-- fullscreen = true
+		})
+	bg.image = loadImage("/assets/background.png")
+end
+
+-- rotates rectangle from origin
+function L.rotatedRectangle(mode, x, y, width, height, angle)
+	love.graphics.push()
+	love.graphics.translate(x + width/2, y + height/2)
+	love.graphics.rotate(angle)
+	love.graphics.rectangle(mode, -width/2, -height/2, width, height)
+	love.graphics.pop()
+end
+
 function randomDir()
 	local theta = random() * 2 * pi
 	local x, y = cos(theta), sin(theta)
@@ -81,13 +102,6 @@ function screenToWorld(x, y)
 	local wx = (x / bg.zoom) - (bg.centerX - bg.width / 2)
 	local wy = (y / bg.zoom) - (bg.centerY - bg.height / 2)
 	return wx, wy
-end
-
--- background and window loader
-function loadBG()
-	love.window.setTitle("CRT")
-	love.window.setMode(bg.width * bg.zoom, bg.height * bg.zoom, { resizable = true })
-	bg.image = loadImage("/assets/background.png")
 end
 
 -- color function wrapper
