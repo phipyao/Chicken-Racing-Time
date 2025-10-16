@@ -10,7 +10,7 @@ function Button.new(params)
         y = p.y or 0,
         w = p.w or 100,
         h = p.h or 40,
-        oy = p.oy or -3,
+        oy = p.oy or 0,
         time = random(0, pi),
         angle = 0,
         scalar = 200,
@@ -27,6 +27,10 @@ function Button.new(params)
 end
 
 function Button:update(dt)
+    x, y = mousePosition()
+    self.isHovered = x >= self.x and x <= self.x + self.w and
+                     y >= self.y and y <= self.y + self.h
+
     local targetOffset = 0
 
     if self.isPressed then
@@ -46,17 +50,13 @@ function Button:update(dt)
 end
 
 function Button:draw()
-    C.shadow:rectangle("fill", self.x, self.y+1, self.w, self.h)
+    C.black:rectangle("fill", self.x-1, self.y+1, self.w+2, self.h)
     C.brown2:rotatedRectangle("fill", self.x, self.y + self.offsetY, self.w, self.h, self.angle)
     L.setLineWidth(2)
     C.brown3:rotatedRectangle("line", self.x, self.y + self.offsetY, self.w, self.h, self.angle)
     L.setLineWidth(1)
+    L.printf(self.text, self.x, self.y + self.offsetY + ((self.h - Font:getHeight()) / 2), self.w, "center")
 
-end
-
-function Button:mousemoved(x, y)
-    self.isHovered = x >= self.x and x <= self.x + self.w and
-                     y >= self.y and y <= self.y + self.h
 end
 
 function Button:mousepressed(x, y, button)

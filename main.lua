@@ -22,7 +22,7 @@ screens = {
     Shop,
 }
 
-screen = Shop
+screen = Home
 
 function love.load()
     loadWindow()
@@ -60,6 +60,10 @@ end
 
 function love.keypressed(key)
     switch(screen):keypressed(key)
+
+    if key == "h" then
+        screen = Home
+    end
 end
 
 function love.resize(w, h)

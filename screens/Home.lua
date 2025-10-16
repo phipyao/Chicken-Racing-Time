@@ -1,29 +1,52 @@
-local Screen = {}
+Button = require("classes.Button")
 
-function Screen:load()
+local Home = {}
 
+local btn = {
+}
+
+function Home:load()
+    table.insert(btn, Button.new({
+        text = "play",
+        x = bg.width/2 - 30,
+        y = 140,
+        w = 60,
+        h = 20,
+        oy = -3,
+        onClick = function()
+            setScreen(Game)
+        end
+    }))
 end
 
-function Screen:update(dt)
-
+function Home:update(dt)
+    for i, b in ipairs(btn) do
+        b:update(dt)
+    end
 end
 
-function Screen:draw()
+function Home:draw()
     camera(function()
-        -- add main scene here
+        for i, b in ipairs(btn) do
+            b:draw()
+        end
     end)
 end
 
-function Screen:mousepressed(x, y, button)
+function Home:mousepressed(x, y, button)
+    for i, b in ipairs(btn) do
+        b:mousepressed(x, y, button)
+    end
+end
+
+function Home:mousereleased(x, y, button)
+    for i, b in ipairs(btn) do
+        b:mousereleased(x, y, button)
+    end
+end
+
+function Home:keypressed(key)
 
 end
 
-function Screen:mousemoved(x, y)
-
-end
-
-function Screen:keypressed(key)
-
-end
-
-return Screen
+return Home

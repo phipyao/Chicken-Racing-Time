@@ -43,11 +43,6 @@ function Shop:mousereleased(x, y, button)
     btn:mousereleased(x, y, button)
 end
 
-
-function Shop:mousemoved(x, y)
-    btn:mousemoved(x, y)
-end
-
 function Shop:keypressed(key)
 
 end

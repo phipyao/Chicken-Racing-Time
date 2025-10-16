@@ -62,6 +62,9 @@ function loadWindow()
 			resizable = true, 
 			-- display = 2, 
 			-- fullscreen = true
+			centered = false,
+			x = 2400,
+			y = 400
 		})
 	bg.image = loadImage("/assets/background.png")
 end
@@ -109,6 +112,10 @@ function screenToWorld(x, y)
 	local wx = (x / bg.zoom) - (bg.centerX - bg.width / 2)
 	local wy = (y / bg.zoom) - (bg.centerY - bg.height / 2)
 	return wx, wy
+end
+
+function mousePosition()
+	return screenToWorld(love.mouse.getPosition())
 end
 
 -- color function wrapper
