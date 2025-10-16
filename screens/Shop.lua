@@ -1,13 +1,13 @@
 Button = require("classes.Button")
 
-local Screen = {}
+local Shop = {}
 
 local shop1 = loadImage("assets/shop.png")
 local shop2 = loadImage("assets/shop2.png")
 local btn
 local count = 0
 
-function Screen:load()
+function Shop:load()
     btn = Button.new({
         x = bg.width/2 - 30,
         y = 10,
@@ -16,16 +16,17 @@ function Screen:load()
         oy = -1,
         onClick = function()
             count = count + 1
-            print("button clicked " .. count .. " times")
+            print("Shop button clicked " .. count .. " times")
+            setScreen(Game)
         end
     })
 end
 
-function Screen:update(dt)
+function Shop:update(dt)
     btn:update(dt)
 end
 
-function Screen:draw()
+function Shop:draw()
     camera(function()
         L.draw(shop2, 0, -2*bg.height)
         L.draw(shop2, 0, -bg.height)
@@ -34,21 +35,21 @@ function Screen:draw()
     end)
 end
 
-function Screen:mousepressed(x, y, button)
+function Shop:mousepressed(x, y, button)
     btn:mousepressed(x, y, button)
 end
 
-function Screen:mousereleased(x, y, button)
+function Shop:mousereleased(x, y, button)
     btn:mousereleased(x, y, button)
 end
 
 
-function Screen:mousemoved(x, y)
+function Shop:mousemoved(x, y)
     btn:mousemoved(x, y)
 end
 
-function Screen:keypressed(key)
+function Shop:keypressed(key)
 
 end
 
-return Screen
+return Shop

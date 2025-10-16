@@ -8,9 +8,11 @@ min = math.min
 abs = math.abs
 sin = math.sin
 cos = math.cos
+atan2 = math.atan2
 pi = math.pi
 random = math.random
 
+screen = nil
 debug = false
 
 Font = L.newFont("assets/m6x11.ttf", 16)
@@ -20,16 +22,21 @@ L.setFont(Font)
 hitSound = require("classes.SFX").new({path = "assets/sounds/bonk.mp3"})
 
 -- safe screen switcher
-function switch(screen)
+function switch(s)
 	return setmetatable({}, {
 		__index = function(_, key)
 			return function(_, ...)
-				if screen and screen[key] then
-					return screen[key](screen, ...)
+				if s and s[key] then
+					return s[key](s, ...)
 				end
 			end
 		end,
 	})
+end
+
+function setScreen(s)
+	screen = s
+	s:load()
 end
 
 bg = {
@@ -76,15 +83,15 @@ end
 
 function randomDirHalf(normalX, normalY)
     -- random angle in [-90°, +90°] relative to the inward normal
-    local theta = (math.random() - 0.5) * math.pi
-    local baseAngle = math.atan2(normalY, normalX)
+    local theta = (random() - 0.5) * math.pi
+    local baseAngle = atan2(normalY, normalX)
     local finalAngle = baseAngle + theta
-    return math.cos(finalAngle), math.sin(finalAngle)
+    return cos(finalAngle), sin(finalAngle)
 end
 
 -- Camera Centering
 function camera(drawFn)
-	-- L.setBackgroundColor(192 / 255, 148 / 255, 115 / 255)
+	L.setBackgroundColor(192 / 255, 148 / 255, 115 / 255)
 	L.push()
 	L.scale(bg.zoom, bg.zoom)
 	L.translate(bg.centerX - bg.width / 2, bg.centerY - bg.height / 2)
